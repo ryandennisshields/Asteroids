@@ -34,18 +34,18 @@ void MainGame::initSystems() {
 	//createShip();
 	//createAsteroid();
 	loadPhysicsEngine();
-	initShip(&shipMesh);
-	initAsteroid(&asteroidMesh);
+	initShip();
+	initAsteroid(AsteroidManager::getInstance().randomiseAsteroidPos());
 }
 
-void MainGame::initShip(Mesh* shipMesh) {
+void MainGame::initShip() {
 	shipTransform = Transform(glm::vec3(0.0f, 0.0f, 0.0f));
-	ship = new GameObject(shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
+	ship = new GameObject(&shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
 }
 
-void MainGame::initAsteroid(Mesh* asteroidMesh) {
-	Transform* asteroidTransform = new Transform(AsteroidManager::getInstance().randomiseAsteroidPos()); // Spawn in randomised position
-	GameObject* asteroid = new GameObject(asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
+void MainGame::initAsteroid(glm::vec3 spawnPosition, glm::vec3 spawnScale) {
+	Transform* asteroidTransform = new Transform(spawnPosition, glm::vec3(0.0f, 0.0f, 0.0f), spawnScale); // Spawn in randomised position
+	GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
 	asteroid->forwardDirection = glm::vec3(AsteroidManager::getInstance().randomiseAsteroidForwardDirection());
 	asteroids.emplace_back(*asteroid);
 	std::cout << "Asteroid created at: " << asteroid->transform->GetPos().x << ", " << asteroid->transform->GetPos().y << ", " << asteroid->transform->GetPos().z << std::endl;
@@ -121,6 +121,7 @@ void MainGame::loadPhysicsEngineUnsafe() {
 void MainGame::loadMeshes() {
 	shipMesh.loadModel("..\\res\\ship.obj");
 	asteroidMesh.loadModel("..\\res\\asteroid.obj");
+	laserMesh.loadModel("..\\res\\laser.obj");
 }
 
 // 🔹 Loads Textures
@@ -232,12 +233,17 @@ void MainGame::handleKeyPress(SDL_Keycode key) {
 	std::cout << "Key Pressed: " << key << std::endl; // DEBUG
 
 	switch (key) {
+	case SDLK_SPACE:
+		if (fireDelay <= 0.0f) {
+			fireLaser();
+			fireDelay = 1.0f;
+		}
+		break;
 	case SDLK_w:  // Move forward (apply thrust)
 		if (applyThrust) {
 			applyThrust(ship, 1.0f);  // Apply forward force
 		}
 		break;
-
 	case SDLK_s:  // Move backward (apply negative thrust)
 		if (applyThrust) {
 			applyThrust(ship, -1.0f);
@@ -288,6 +294,14 @@ void MainGame::handleKeyPress(SDL_Keycode key) {
 	// Update the forward direction of the GameObject
 	//ship->forwardDirection = newForwardDirection;
 	setForwardDirection(ship, newForwardDirection); // Update forward direction
+
+}
+
+void MainGame::fireLaser() {
+	Transform* laserTransform = new Transform(ship->transform->pos, ship->transform->rot); // Spawn in randomised position
+	GameObject* laser = new GameObject(&laserMesh, laserTransform , ShaderManager::getInstance().getShader("ADS").get());
+	laser->forwardDirection = glm::vec3(ship->forwardDirection);
+	lasers.emplace_back(*laser);
 }
 
 void MainGame::updatePlayer(float deltaTime) {
@@ -319,8 +333,29 @@ void MainGame::updatePlayer(float deltaTime) {
 void MainGame::updateMovement(float deltaTime) {
 	counter += deltaTime;
 	if (counter > 5.0f) {
-		initAsteroid(&asteroidMesh);
+		initAsteroid(AsteroidManager::getInstance().randomiseAsteroidPos());
 		counter = 0.0f;
+	}
+
+	if (fireDelay > 0.0f) {
+		fireDelay -= deltaTime;
+	}
+
+	for (auto& obj : asteroids) {
+		for (auto& laser : lasers) {
+			if (checkCollisionAABB(&obj, &laser, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 (1.0f, 1.0f, 1.0f))) {
+				// Handle collision
+				std::cout << "Collision detected!" << std::endl;
+				// Remove the laser and asteroid from their respective vectors
+				Transform* asteroid = obj.transform;
+				lasers.erase(lasers.begin() + (&laser - &lasers[0]));
+				asteroids.erase(asteroids.begin() + (&obj - &asteroids[0]));
+				if (asteroid->scale.z >= 1.0f) {
+					initAsteroid(asteroid->pos, glm::vec3(asteroid->scale.x / 2, asteroid->scale.y / 2, asteroid->scale.z / 2));
+					initAsteroid(asteroid->pos, glm::vec3(asteroid->scale.x / 2, asteroid->scale.y / 2, asteroid->scale.z / 2));
+				}
+			}
+		}
 	}
 	//Transform& transform = TransformManager::getInstance().getTransform("susanna2");// make a mesh current e.g. mesh2
 	//transform.SetPos(glm::vec3(5.0f - counter, 0.0f, 0.0f));// update current mesh
@@ -375,9 +410,29 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 			asteroids.erase(asteroids.begin() + (&obj - &asteroids[0])); // Remove object
 		}
 
-		obj.transform->pos += obj.forwardDirection * 4.0f * deltaTime; // Move asteroid forward
+		obj.transform->pos += obj.forwardDirection * 0.5f * deltaTime; // Move asteroid forward
 		//float angle = SDL_GetTicks() * 0.0001f; // Convert milliseconds to seconds
 		//glUniform1f(glGetUniformLocation(currentShader->ID(), "angle"), angle);
+	}
+
+	for (auto& obj : lasers) {
+		if (obj.shader != currentShader) {
+			currentShader = obj.shader;
+			currentShader->Bind(); // Bind shader only if switching
+		}
+
+		// Update UBO for this object's transform
+		glm::mat4 model = obj.transform->GetModel();
+		glm::mat4 view = myCamera.getView();
+		glm::mat4 projection = myCamera.getProjection();
+
+		UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(model), sizeof(glm::mat4));
+		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4), glm::value_ptr(view), sizeof(glm::mat4));
+		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
+
+		obj.mesh->draw();
+
+		obj.transform->pos += obj.forwardDirection * 6.0f * deltaTime; // Move asteroid forward
 	}
 }
 

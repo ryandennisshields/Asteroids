@@ -21,8 +21,8 @@ extern "C" PHYSICS_API void updatePhysics(GameObject * obj, float deltaTime) {
 }
 
 extern "C" PHYSICS_API bool checkCollisionRadius(const GameObject* a, const GameObject* b, float radiusA, float radiusB) {
-    glm::vec3 posA = a->transform->GetPos();
-    glm::vec3 posB = b->transform->GetPos();
+    glm::vec3 posA = a->transform->pos;
+    glm::vec3 posB = b->transform->pos;
     float distance = glm::distance(posA, posB);
     if (distance < (radiusA + radiusB)) 
     {

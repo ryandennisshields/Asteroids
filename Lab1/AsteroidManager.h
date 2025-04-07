@@ -14,7 +14,6 @@ public:
 
 	glm::vec3 randomiseAsteroidPos();
 	glm::vec3 randomiseAsteroidForwardDirection();
-	void deleteAsteroid();
 
 	//std::vector<GameObject> asteroids;
 private:

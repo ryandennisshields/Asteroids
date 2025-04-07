@@ -28,6 +28,7 @@ private:
 	void setActiveShader(const std::string& shaderTag);
 	void initSystems();
 	void processInput();
+	void fireLaser();
 	void gameLoop();
 	void drawGame();
 	void clearScreenBuffer();
@@ -45,8 +46,8 @@ private:
 	void loadPhysicsEngine();
 	void loadPhysicsEngineUnsafe();
 	void handleKeyPress(SDL_Keycode key);
-	void initShip(Mesh* shipMesh);
-	void initAsteroid(Mesh* asteroidMesh);
+	void initShip();
+	void initAsteroid(glm::vec3 spawnPosition, glm::vec3 spawnScale = glm::vec3(1.0f, 1.0f, 1.0f));
 	void updatePlayer(float deltaTime);
 	void updateMovement(float deltaTime);
 	float getRefreshRate();
@@ -55,12 +56,14 @@ private:
 	GameState _gameState;
 	Mesh shipMesh;
 	Mesh asteroidMesh;
+	Mesh laserMesh;
 	Camera myCamera;
 	Texture texture; 
 	Transform transform;
 	Transform shipTransform;
 
 	float counter;
+	float fireDelay;
 
 	float deltaTime = 0.0f;
 	float lastFrameTime = 0.0f;
@@ -69,7 +72,9 @@ private:
 
 	GameObject* ship; // Store a pointer to the ship
 	GameObject* asteroid;
+	GameObject* laser;
 	std::vector<GameObject> asteroids; // Store all asteroids
+	std::vector<GameObject> lasers;
 	std::string activeShaderTag; // Track the active shader
 
 	// Function pointers for physics engine functions

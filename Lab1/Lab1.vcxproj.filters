@@ -159,5 +159,8 @@
     <Object Include="..\res\ship.obj">
       <Filter>Resource Files</Filter>
     </Object>
+    <Object Include="..\res\laser.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
   </ItemGroup>
 </Project>
