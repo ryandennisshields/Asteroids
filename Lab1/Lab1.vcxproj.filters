@@ -90,6 +90,9 @@
     <ClCompile Include="AsteroidManager.cpp">
       <Filter>Source Files\Rendering\Management</Filter>
     </ClCompile>
+    <ClCompile Include="TextManager.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -143,12 +146,24 @@
     <ClInclude Include="AsteroidManager.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
+    <ClInclude Include="TextManager.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClInclude>
+    <ClInclude Include="..\deps\include\ft2build.h">
+      <Filter>Header Files\Display</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\ADS.frag">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\ADS.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="glyphs.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="glyphs.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

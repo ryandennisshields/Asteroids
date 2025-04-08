@@ -36,6 +36,8 @@ void MainGame::initSystems() {
 	loadPhysicsEngine();
 	initShip();
 	initAsteroid(AsteroidManager::getInstance().randomiseAsteroidPos());
+	TextManager::getInstance().init(); // Initialize text manager
+	TextManager::getInstance().RenderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Hello World", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 void MainGame::initShip() {

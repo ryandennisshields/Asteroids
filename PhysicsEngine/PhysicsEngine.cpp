@@ -36,8 +36,8 @@ extern "C" PHYSICS_API bool checkCollisionRadius(const GameObject* a, const Game
 }
 
 extern "C" PHYSICS_API bool checkCollisionAABB(const GameObject* a, const GameObject* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
-    glm::vec3 posA = a->transform->GetPos();
-    glm::vec3 posB = b->transform->GetPos();
+    glm::vec3 posA = a->transform->pos;
+    glm::vec3 posB = b->transform->pos;
     if (abs(posA.x - posB.x) < (halfExtentsA.x + halfExtentsB.x) &&
         abs(posA.y - posB.y) < (halfExtentsA.y + halfExtentsB.y) &&
         abs(posA.z - posB.z) < (halfExtentsA.z + halfExtentsB.z))

@@ -5,6 +5,7 @@
 #include <windows.h>  // Required for LoadLibrary & GetProcAddress
 #include "ShaderManager.h"
 #include "TransformManager.h"
+#include "TextManager.h"
 #include "UBOManager.h"
 #include "AsteroidManager.h"
 #include "Mesh.h"
