@@ -15,31 +15,32 @@
 #include <iostream>
 #include <map>
 #include "Shader.h"
+#include "Texture.h"
+#include "Camera.h"
+#include "UBOManager.h"
 
-class TextManager {
+class TextManager
+{
 public:
-    // Singleton pattern
     static TextManager& getInstance();
 
-    void init();
-
-    void RenderText(Shader& s, std::string text, float x, float y, float scale, glm::vec3 color);
+	void init();
+	void renderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
 private:
-    TextManager();
+    TextManager() = default;
     ~TextManager() = default;
-
-    unsigned int VAO, VBO;
-
-    struct Character {
-        unsigned int TextureID;  // ID handle of the glyph texture
-        glm::ivec2   Size;       // Size of glyph
-        glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
-        unsigned int Advance;    // Offset to advance to next glyph
-    };
-    std::map<char, Character> Characters;
-
-    // Prevent copy/move
     TextManager(const TextManager&) = delete;
     TextManager& operator=(const TextManager&) = delete;
+
+	struct Character {
+		GLuint TextureID;   // ID handle of the glyph texture
+		glm::ivec2 Size;    // Size of glyph
+		glm::ivec2 Bearing; // Offset from baseline to left/top of glyph
+		GLuint Advance;     // Offset to advance to next glyph
+	};
+
+	std::map<GLchar, Character> Characters; // Holds all characters
+
+	unsigned int VAO, VBO;
 };

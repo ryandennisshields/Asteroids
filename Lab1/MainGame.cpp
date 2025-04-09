@@ -24,7 +24,6 @@ void MainGame::run()
 }
 
 void MainGame::initSystems() {
-
 	loadMeshes();
 	loadTextures();
 	setupUBOs();
@@ -35,9 +34,7 @@ void MainGame::initSystems() {
 	//createAsteroid();
 	loadPhysicsEngine();
 	initShip();
-	initAsteroid(AsteroidManager::getInstance().randomiseAsteroidPos());
-	TextManager::getInstance().init(); // Initialize text manager
-	TextManager::getInstance().RenderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Hello World", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//initAsteroid(AsteroidManager::getInstance().randomiseAsteroidPos());
 }
 
 void MainGame::initShip() {
@@ -128,6 +125,7 @@ void MainGame::loadMeshes() {
 
 // 🔹 Loads Textures
 void MainGame::loadTextures() {
+	TextManager::getInstance().init();
 	texture.init("..\\res\\metal.jpg");
 }
 
@@ -144,6 +142,7 @@ void MainGame::setupUBOs() {
 
 // 🔹 Loads and sets up shaders
 void MainGame::loadShaders() {
+	ShaderManager::getInstance().loadShader("glyphs", "..\\res\\glyphs.vert", "..\\res\\glyphs.frag");
 	ShaderManager::getInstance().loadShader("ADS", "..\\res\\ADS.vert", "..\\res\\ADS.frag");
 	setActiveShader("ADS");
 
@@ -466,12 +465,13 @@ void MainGame::renderPlayer() {
 
 void MainGame::clearScreenBuffer()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set clear color to black
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear colour and depth buffer - set colour to colour defined in glClearColor
 }
 
 void MainGame::drawGame() {
 	clearScreenBuffer();
+	TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Hello World", 100.0f, 100.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 	renderPlayer();
 	renderGameObjects(); // Now handles full rendering
 	_gameDisplay.swapBuffers();

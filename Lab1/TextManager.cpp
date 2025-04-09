@@ -7,13 +7,9 @@
 //
 #include "TextManager.h"
 
-TextManager::TextManager() 
-{
-}
-
 TextManager& TextManager::getInstance() {
-    static TextManager instance;
-    return instance;
+	static TextManager instance;
+	return instance;
 }
 
 void TextManager::init()
@@ -21,23 +17,23 @@ void TextManager::init()
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
     }
 
     FT_Face face;
-    if (FT_New_Face(ft, "res/fonts/arial.ttf", 0, &face))
-    {
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    if (FT_New_Face(ft, "..\\res\\fonts\\arial.ttf", 0, &face))
+    { 
+        std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 48);
+	FT_Set_Pixel_Sizes(face, 0, 48);
 
     if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
     {
-        std::cout << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
+        std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
     }
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
     for (unsigned char c = 0; c < 128; c++)
     {
@@ -75,34 +71,33 @@ void TextManager::init()
             face->glyph->advance.x
         };
         Characters.insert(std::pair<char, Character>(c, character));
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        FT_Done_Face(face);
-        FT_Done_FreeType(ft);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
-
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
     }
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
-void TextManager::RenderText(Shader& s, std::string text, float x, float y, float scale, glm::vec3 color)
+void TextManager::renderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
 {
-    // activate corresponding render state	
-    s.Bind();
-    glUniform3f(glGetUniformLocation(s.ID(), "textColor"), color.x, color.y, color.z);
-    glActiveTexture(GL_TEXTURE0);
+    shader.Bind();
+    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+    shader.setMat4("projection", projection);
+
+    glUniform3f(glGetUniformLocation(shader.ID(), "textColor"), color.x, color.y, color.z);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glBindVertexArray(VAO);
 
     // iterate through all characters
@@ -130,9 +125,7 @@ void TextManager::RenderText(Shader& s, std::string text, float x, float y, floa
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
         // update content of VBO memory
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 
-            0, sizeof(vertices), vertices);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
@@ -140,4 +133,7 @@ void TextManager::RenderText(Shader& s, std::string text, float x, float y, floa
     }
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
+    glUseProgram(0);
+	glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+} 

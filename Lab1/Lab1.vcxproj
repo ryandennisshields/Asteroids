@@ -116,8 +116,8 @@
   <ItemGroup>
     <None Include="..\res\ADS.frag" />
     <None Include="..\res\ADS.vert" />
-    <None Include="glyphs.frag" />
-    <None Include="glyphs.vert" />
+    <None Include="..\res\glyphs.frag" />
+    <None Include="..\res\glyphs.vert" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\res\asteroid.obj">
