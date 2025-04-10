@@ -91,10 +91,10 @@ void TextManager::renderText(Shader &shader, std::string text, float x, float y,
     shader.Bind();
     glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
     shader.setMat4("projection", projection);
+	shader.setInt("text", 1); // Activate corresponding texture unit before rendering
 
     glUniform3f(glGetUniformLocation(shader.ID(), "textColor"), color.x, color.y, color.z);
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -122,6 +122,7 @@ void TextManager::renderText(Shader &shader, std::string text, float x, float y,
             { xpos + w, ypos + h,   1.0f, 0.0f }
         };
         // render glyph texture over quad
+		glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
         // update content of VBO memory
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -131,9 +132,10 @@ void TextManager::renderText(Shader &shader, std::string text, float x, float y,
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
     }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glUseProgram(0);
-	glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
-} 
+    //glBindVertexArray(0);
+	//glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    //glUseProgram(0);
+	//glDisable(GL_BLEND);
+    //glDisable(GL_DEPTH_TEST);
+}

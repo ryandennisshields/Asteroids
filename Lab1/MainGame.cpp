@@ -451,6 +451,7 @@ void MainGame::renderPlayer() {
 	}
 
 	playerShader->Bind();
+	//glBindTexture(GL_TEXTURE_2D, ); // Bind the texture
 
 	glm::mat4 playerModel = ship->transform->GetModel();
 	glm::mat4 view = myCamera.getView();
@@ -471,7 +472,7 @@ void MainGame::clearScreenBuffer()
 
 void MainGame::drawGame() {
 	clearScreenBuffer();
-	TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Hello World", 100.0f, 100.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(counter), 100.0f, 100.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 	renderPlayer();
 	renderGameObjects(); // Now handles full rendering
 	_gameDisplay.swapBuffers();
