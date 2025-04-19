@@ -13,7 +13,8 @@ public:
 	static AsteroidManager& getInstance();
 
 	glm::vec3 randomiseAsteroidPos();
-	glm::vec3 randomiseAsteroidForwardDirection();
+	glm::vec3 randomiseAsteroidForwardDirection(glm::vec3 asteroidPos);
+	glm::vec3 randomiseAsteroidScale();
 
 	//std::vector<GameObject> asteroids;
 private:

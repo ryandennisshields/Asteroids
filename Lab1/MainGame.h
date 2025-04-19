@@ -14,7 +14,7 @@
 #include "DisplayFacade.h" 
 #include "GameObject.h"
 
-enum class GameState{PLAY, EXIT};
+enum class GameState{PLAY, EXIT, GAMEOVER};
 
 class MainGame
 {
@@ -63,6 +63,7 @@ private:
 	Transform transform;
 	Transform shipTransform;
 
+	int score = 0;
 	float counter;
 	float fireDelay;
 
