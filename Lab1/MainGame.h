@@ -2,6 +2,7 @@
 #include <SDL\SDL.h>
 #include <GL/glew.h>
 #include <vector>
+#include <algorithm>
 #include <windows.h>  // Required for LoadLibrary & GetProcAddress
 #include "ShaderManager.h"
 #include "TransformManager.h"
@@ -46,9 +47,9 @@ private:
 	void createAsteroid();
 	void loadPhysicsEngine();
 	void loadPhysicsEngineUnsafe();
-	void handleKeyPress(SDL_Keycode key);
+	void handleKeyPress(const Uint8* keystate);
 	void initShip();
-	void initAsteroid(glm::vec3 spawnPosition, glm::vec3 spawnScale = glm::vec3(1.0f, 1.0f, 1.0f));
+	void initAsteroid();
 	void updatePlayer(float deltaTime);
 	void updateMovement(float deltaTime);
 	float getRefreshRate();

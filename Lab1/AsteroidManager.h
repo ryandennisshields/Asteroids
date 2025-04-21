@@ -18,6 +18,6 @@ public:
 
 	//std::vector<GameObject> asteroids;
 private:
-	AsteroidManager() = default;
+	AsteroidManager();
 	~AsteroidManager() = default;
 };

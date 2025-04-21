@@ -12,7 +12,7 @@ TextManager& TextManager::getInstance() {
 	return instance;
 }
 
-void TextManager::init()
+TextManager::TextManager()
 {
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
@@ -46,6 +46,7 @@ void TextManager::init()
         // generate texture
         unsigned int texture;
         glGenTextures(1, &texture);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(
             GL_TEXTURE_2D,

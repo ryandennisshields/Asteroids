@@ -24,11 +24,10 @@ class TextManager
 public:
     static TextManager& getInstance();
 
-	void init();
 	void renderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
 private:
-    TextManager() = default;
+	TextManager();
     ~TextManager() = default;
     TextManager(const TextManager&) = delete;
     TextManager& operator=(const TextManager&) = delete;
