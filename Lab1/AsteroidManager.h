@@ -20,4 +20,11 @@ public:
 private:
 	AsteroidManager();
 	~AsteroidManager() = default;
+
+	float randomPosMin;
+	float randomPosMax;
+	float randomScaleMin;
+	float randomScaleMax;
+	float randomForwardMin;
+	float randomForwardMax;
 };

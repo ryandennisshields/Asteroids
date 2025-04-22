@@ -8,7 +8,8 @@
 
 MainGame::MainGame()
 	: _gameDisplay("OpenGL Game", 1980, 1024), // Initialize the display wrapper
-	_gameState(GameState::PLAY), counter(0.0f)
+	_gameState(GameState::PLAY), 
+	spawnDelay(0.0f), fireDelay(0.0f), score(0)
 {
 	fixedTimeStep = 1.0f / getRefreshRate(); // Dynamically set refresh-based time step
 }
@@ -132,7 +133,7 @@ void MainGame::gameLoop() {
 		if (_gameState != GameState::GAMEOVER) {
 			calculateDeltaTime();
 			updatePlayer(deltaTime);
-			updateMovement(deltaTime);
+			update(deltaTime);
 		}
 		drawGame();
 	}
@@ -161,47 +162,52 @@ void MainGame::handleKeyPress(const Uint8* keystates) {
 		_gameState = GameState::EXIT;
 	}
 
-	if (keystates[SDL_SCANCODE_SPACE]) {
-		if (fireDelay <= 0.0f) {
-			fireLaser();
-			fireDelay = 0.5f; // Reset fire delay
-		}
-	}
+	float thrust = 10.0f;
+	float velocityCap = 6.0f;
+	float rotationSpeed = 100.0f;
+	float fireRate = 0.5f;
 
 	if (keystates[SDL_SCANCODE_W]) {
 		if (applyThrust) {
-			applyThrust(ship, 10.0f * deltaTime);
+			applyThrust(ship, thrust * deltaTime);
 		}
 	}
 
 	if (keystates[SDL_SCANCODE_S]) {
 		if (applyThrust) {
-			applyThrust(ship, -10.0f * deltaTime);
+			applyThrust(ship, -thrust * deltaTime);
 		}
 	}
 
+	// Cap velocity
+	ship->velocity.x = std::clamp(ship->velocity.x, -velocityCap, velocityCap);
+	ship->velocity.y = std::clamp(ship->velocity.y, -velocityCap, velocityCap);
+
 	if (keystates[SDL_SCANCODE_A]) {
 		if (setForwardDirection) {
-			shipTransform.rot.z -= glm::radians(100.0f * deltaTime);
+			shipTransform.rot.z -= glm::radians(rotationSpeed * deltaTime);
 			setForwardDirection(ship, shipTransform.rot);
 		}
 	}
 
 	if (keystates[SDL_SCANCODE_D]) {
 		if (setForwardDirection) {
-			shipTransform.rot.z += glm::radians(100.0f * deltaTime);
+			shipTransform.rot.z += glm::radians(rotationSpeed * deltaTime);
 			setForwardDirection(ship, shipTransform.rot);
 		}
 	}
-	
-	// Cap velocity
-	ship->velocity.x = std::clamp(ship->velocity.x, -6.0f, 6.0f);
-	ship->velocity.y = std::clamp(ship->velocity.y, -6.0f, 6.0f);
+
+	if (keystates[SDL_SCANCODE_SPACE]) {
+		if (fireDelay <= 0.0f) {
+			fireLaser();
+			fireDelay = fireRate; // Reset fire delay
+		}
+	}
 }
 
 
 void MainGame::fireLaser() {
-	Transform* laserTransform = new Transform(ship->transform->pos, ship->transform->rot);
+	Transform* laserTransform = new Transform(shipTransform.pos, shipTransform.rot);
 	GameObject* laser = new GameObject(&laserMesh, laserTransform , ShaderManager::getInstance().getShader("ADS").get());
 	laser->forwardDirection = glm::vec3(ship->forwardDirection);
 	lasers.emplace_back(*laser);
@@ -217,56 +223,95 @@ void MainGame::updatePlayer(float deltaTime) {
 	/*std::cout << "Player Position: "
 		<< player->transform->GetPos()->x << '\n';*/
 
+	float wrapPosX = 32.5f;
+	float wrapPosY = 20.0f;
+
 	glm::vec3 shipPos = ship->transform->GetPos();
-	if (shipPos.x > 32.5f) {
-		ship->transform->pos.x = -32.5f; // Wrap around
-	}
-	if (shipPos.x < -32.5f) {
-		ship->transform->pos.x = 32.5f; // Wrap around
-	}
-	if (shipPos.y > 20.0f) {
-		ship->transform->pos.y = -20.0f; // Wrap around
-	}
-	if (shipPos.y < -20.0f) {
-		ship->transform->pos.y = 20.0f; // Wrap around
-	}
+	if (shipPos.x > wrapPosX)
+		ship->transform->pos.x = -wrapPosX;
+	if (shipPos.x < -wrapPosX) 
+		ship->transform->pos.x = wrapPosX;
+	if (shipPos.y > wrapPosY)
+		ship->transform->pos.y = -wrapPosY;
+	if (shipPos.y < -wrapPosY) 
+		ship->transform->pos.y = wrapPosY;
 	//std::cout << "ship position: " << ship->transform->GetPos().x << ", " << ship->transform->GetPos().y << ", " << ship->transform->GetPos().z << std::endl;
 }
 
-void MainGame::updateMovement(float deltaTime) {
-	counter += deltaTime;
-	if (counter > 0.5f) {
-		initAsteroid();
-		counter = 0.0f;
-	}
+void MainGame::update(float deltaTime) {
+	if (spawnDelay > 0.0f)
+		spawnDelay -= deltaTime;
 
-	if (fireDelay > 0.0f) {
+	if (fireDelay > 0.0f) 
 		fireDelay -= deltaTime;
+
+	float spawnRate = 0.5f; // Spawn rate in seconds
+
+	if (spawnDelay <= 0.0f) {
+		initAsteroid();
+		spawnDelay = spawnRate;
 	}
 
-	for (auto& obj : asteroids) {
+	float deleteBoundsX = 50.0f;
+	float deleteBoundsY = 40.0f;
+
+	float asteroidSpeed = 0.5f;
+
+	for (auto& asteroid : asteroids) {
+
+		Transform* asteroidTransform = asteroid.transform;
+
+		asteroidTransform->pos += asteroid.forwardDirection * asteroidSpeed * deltaTime; // Move asteroid forward
+
+		if (asteroidTransform->pos.x > deleteBoundsX) 
+			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
+		if (asteroidTransform->pos.x < -deleteBoundsX)
+			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
+		if (asteroidTransform->pos.y > deleteBoundsY)
+			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
+		if (asteroidTransform->pos.y < -deleteBoundsY)
+			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
+
 		for (auto& laser : lasers) {
-			if (checkCollisionAABB(&obj, &laser, obj.transform->scale, glm::vec3 (1.0f, 1.0f, 1.0f))) {
+			if (checkCollisionAABB(&asteroid, &laser, asteroidTransform->scale, glm::vec3 (1.0f, 1.0f, 1.0f))) {
 				// Handle collision
-				std::cout << "Collision detected!" << std::endl;
+				//std::cout << "Collision detected!" << std::endl;
 				// Remove the laser and asteroid from their respective vectors
-				Transform* asteroid = obj.transform;
+				//Transform* asteroid = asteroid.transform;
 				//if (asteroid->scale.z >= 1.0f) {
 					//initAsteroid(asteroid->pos, glm::vec3(asteroid->scale.x / 2, asteroid->scale.y / 2, asteroid->scale.z / 2));
 				//}
 				score += 100;
-				asteroids.erase(asteroids.begin() + (&obj - &asteroids[0]));
+				asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0]));
 				lasers.erase(lasers.begin() + (&laser - &lasers[0]));
 			}
 		}
-		if (checkCollisionAABB(&obj, ship, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))) 
+		if (checkCollisionAABB(&asteroid, ship, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))) 
 		{
-			counter = 0.0f;
 			lasers.clear();
 			asteroids.clear();
 			_gameState = GameState::GAMEOVER;
 		}
 	}
+
+	float laserSpeed = 15.0f;
+
+	for (auto& laser : lasers) {
+
+		laser.transform->pos += laser.forwardDirection * laserSpeed * deltaTime; // Move laser forward
+
+		glm::vec3 laserPos = laser.transform->GetPos();
+
+		if (laserPos.x > deleteBoundsX)
+			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
+		if (laserPos.x < -deleteBoundsX)
+			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
+		if (laserPos.y > deleteBoundsY)
+			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
+		if (laserPos.y < -deleteBoundsY)
+			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
+	}
+
 	//Transform& transform = TransformManager::getInstance().getTransform("susanna2");// make a mesh current e.g. mesh2
 	//transform.SetPos(glm::vec3(5.0f - counter, 0.0f, 0.0f));// update current mesh
 	//bool collision = checkCollisionAABB(&gameObjects[0], &gameObjects[1], glm::vec3(1.0f), glm::vec3(1.0f));
@@ -305,22 +350,6 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
 
 		obj.mesh->draw();
-
-		glm::vec3 objPos = obj.transform->GetPos();
-		if (objPos.x > 50.0f) {
-			asteroids.erase(asteroids.begin() + (&obj - &asteroids[0])); // Remove object
-		}
-		if (objPos.x < -50.0f) {
-			asteroids.erase(asteroids.begin() + (&obj - &asteroids[0])); // Remove object
-		}
-		if (objPos.y > 40.0f) {
-			asteroids.erase(asteroids.begin() + (&obj - &asteroids[0])); // Remove object
-		}
-		if (objPos.y < -40.0f) {
-			asteroids.erase(asteroids.begin() + (&obj - &asteroids[0])); // Remove object
-		}
-
-		obj.transform->pos += obj.forwardDirection * 0.5f * deltaTime; // Move asteroid forward
 		//float angle = SDL_GetTicks() * 0.0001f; // Convert milliseconds to seconds
 		//glUniform1f(glGetUniformLocation(currentShader->ID(), "angle"), angle);
 	}
@@ -341,8 +370,6 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
 
 		obj.mesh->draw();
-
-		obj.transform->pos += obj.forwardDirection * 6.0f * deltaTime; // Move asteroid forward
 	}
 }
 
@@ -380,18 +407,19 @@ void MainGame::clearScreenBuffer()
 }
 
 void MainGame::drawGame() {
+	TextManager& textManager = TextManager::getInstance();
 	clearScreenBuffer();
 	if (_gameState == GameState::PLAY) 
 	{
-		TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(score), 125.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		textManager.renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(score), 125.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		renderPlayer();
 		renderGameObjects(); // Now handles full rendering
 	}
 	if (_gameState == GameState::GAMEOVER) 
 	{
-		TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Game Over", 275.0f, 400.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(score), 275.0f, 300.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		TextManager::getInstance().renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Press ESC to exit", 275.0f, 200.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		textManager.renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Game Over", 275.0f, 400.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		textManager.renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(score), 275.0f, 300.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		textManager.renderText(*ShaderManager::getInstance().getShader("glyphs").get(), "Press ESC to exit", 275.0f, 200.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 	_gameDisplay.swapBuffers();
 }

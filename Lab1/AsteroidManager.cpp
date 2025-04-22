@@ -7,57 +7,54 @@ AsteroidManager& AsteroidManager::getInstance() {
 	return instance;
 }
 
-AsteroidManager::AsteroidManager() {
+AsteroidManager::AsteroidManager() 
+	: randomPosMin(-10.0f), randomPosMax(10.0f),
+	randomScaleMin(1.0f), randomScaleMax(3.0f),
+	randomForwardMin(5.0f), randomForwardMax(10.0f)
+{
 	srand(time(0));
 }
 
-// add code for randomising asteroids after they've spawned
 glm::vec3 AsteroidManager::randomiseAsteroidPos() {
-	float randX = -10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (10.0f - (-10.0f))));
-	if (randX < 0) {
-		randX -= 35.5f;
-	}
-	else {
-		randX += 35.5f;
-	}
-	float randY = -10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (10.0f - (-10.0f))));
-	if (randY < 0) {
+	float randX = randomPosMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomPosMin - (randomPosMax))));
+	if (randX < 0)
+		randX -= 35.0f;
+	else
+		randX += 35.0f;
+	float randY = randomPosMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomPosMin - (randomPosMax))));
+	if (randY < 0)
 		randY -= 10.0f;
-	}
-	else {
+	else
 		randY += 10.0f;
-	}
 	return glm::vec3(randX, randY, 0.0f);
 }
 
 glm::vec3 AsteroidManager::randomiseAsteroidScale() {
-	//srand(time(0));
-	float randS = 3.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0f - (3.0f))));
+	float randS = randomScaleMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomScaleMin - (randomScaleMax))));
 	return glm::vec3(randS, randS, randS);
 }
 
 glm::vec3 AsteroidManager::randomiseAsteroidForwardDirection(glm::vec3 asteroidPos) {
-	//srand(time(0));
 	float randX = 0.0f;
 	float randY = 0.0f;
 	if (asteroidPos.x > 0 && asteroidPos.y > 0)
 	{
-		randX = -10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f - (-10.0f))));
-		randY = -10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f - (-10.0f))));
+		randX = -randomForwardMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomForwardMin - (-randomForwardMax))));
+		randY = -randomForwardMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomForwardMin - (-randomForwardMax))));
 	}
 	else if (asteroidPos.x < 0 && asteroidPos.y > 0)
 	{
-		randX = 10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f - (10.0f))));
-		randY = -10.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f - (-10.0f))));
+		randX = randomForwardMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomForwardMin - (randomForwardMax))));
+		randY = -randomForwardMax + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (randomForwardMin - (-randomForwardMax))));
 	}
 	else if (asteroidPos.x < 0 && asteroidPos.y < 0) 
 	{
-		randX = 10.0f + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (5.0f - (10.0f))));
-		randY = 10.0f + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (5.0f - (10.0f))));
+		randX = randomForwardMax + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (randomForwardMin - (randomForwardMax))));
+		randY = randomForwardMax + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (randomForwardMin - (randomForwardMax))));
 	}
 	else {
-		randX = -10.0f + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (5.0f - (-10.0f))));
-		randY = 10.0f + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (5.0f - (10.0f))));
+		randX = -randomForwardMax + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (randomForwardMin - (-randomForwardMax))));
+		randY = randomForwardMax + static_cast <float>(rand()) / (static_cast <float>(RAND_MAX / (randomForwardMin - (randomForwardMax))));
 	}
 	return glm::vec3(randX, randY, 0.0f);
 }

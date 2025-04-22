@@ -42,16 +42,12 @@ private:
 	void setupCamera();
 	void renderGameObjects();
 	void renderPlayer();
-	void setupTransforms();
-	void createShip();
-	void createAsteroid();
 	void loadPhysicsEngine();
-	void loadPhysicsEngineUnsafe();
 	void handleKeyPress(const Uint8* keystate);
 	void initShip();
 	void initAsteroid();
 	void updatePlayer(float deltaTime);
-	void updateMovement(float deltaTime);
+	void update(float deltaTime);
 	float getRefreshRate();
 
 	DisplayFacade _gameDisplay;
@@ -60,12 +56,11 @@ private:
 	Mesh asteroidMesh;
 	Mesh laserMesh;
 	Camera myCamera;
-	Texture texture; 
-	Transform transform;
+	Texture texture;
 	Transform shipTransform;
 
-	int score = 0;
-	float counter;
+	int score;
+	float spawnDelay;
 	float fireDelay;
 
 	float deltaTime = 0.0f;
@@ -74,8 +69,6 @@ private:
 	mutable float fixedTimeStep; // 60 physics updates per second
 
 	GameObject* ship; // Store a pointer to the ship
-	GameObject* asteroid;
-	GameObject* laser;
 	std::vector<GameObject> asteroids; // Store all asteroids
 	std::vector<GameObject> lasers;
 	std::string activeShaderTag; // Track the active shader
@@ -87,8 +80,5 @@ private:
 
 	bool (*checkCollisionRadius)(const GameObject*, const GameObject*, float, float) = nullptr;
 	bool (*checkCollisionAABB)(const GameObject*, const GameObject*, const glm::vec3&, const glm::vec3&) = nullptr;
-
-	// Function pointer for HelloWorld test function
-	void (*HelloWorld)() = nullptr;
 };
 
