@@ -83,6 +83,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="obj_loader.cpp" />
     <ClCompile Include="OpenGLContext.cpp" />
+    <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="stb_image.c" />
@@ -103,6 +104,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="obj_loader.h" />
     <ClInclude Include="OpenGLContext.h" />
+    <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="stb_image.h" />
@@ -118,6 +120,8 @@
     <None Include="..\res\ADS.vert" />
     <None Include="..\res\glyphs.frag" />
     <None Include="..\res\glyphs.vert" />
+    <None Include="particle.frag" />
+    <None Include="particle.vert" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\res\asteroid.obj">

@@ -93,6 +93,9 @@
     <ClCompile Include="TextManager.cpp">
       <Filter>Source Files\Rendering\Management</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleManager.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -152,6 +155,9 @@
     <ClInclude Include="..\deps\include\ft2build.h">
       <Filter>Header Files\Display</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleManager.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\ADS.frag">
@@ -164,6 +170,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\glyphs.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="particle.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="particle.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
