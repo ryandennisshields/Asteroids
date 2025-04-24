@@ -113,8 +113,8 @@ void MainGame::setupUBOs() {
 
 // 🔹 Loads and sets up shaders
 void MainGame::loadShaders() {
-	ShaderManager::getInstance().loadShader("glyphs", "..\\res\\glyphs.vert", "..\\res\\glyphs.frag");
 	ShaderManager::getInstance().loadShader("ADS", "..\\res\\ADS.vert", "..\\res\\ADS.frag");
+	ShaderManager::getInstance().loadShader("glyphs", "..\\res\\glyphs.vert", "..\\res\\glyphs.frag");
 	setActiveShader("ADS");
 
 	// Bind UBO to Shader

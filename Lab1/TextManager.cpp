@@ -93,8 +93,7 @@ void TextManager::renderText(Shader &shader, std::string text, float x, float y,
     glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
     shader.setMat4("projection", projection);
 	shader.setInt("text", 1); // Activate corresponding texture unit before rendering
-
-    glUniform3f(glGetUniformLocation(shader.ID(), "textColor"), color.x, color.y, color.z);
+	shader.setVec3("textColor", color);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
