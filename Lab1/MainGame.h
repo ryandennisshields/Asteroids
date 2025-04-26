@@ -52,11 +52,13 @@ private:
 
 	DisplayFacade _gameDisplay;
 	GameState _gameState;
+	Camera myCamera;
 	Mesh shipMesh;
 	Mesh asteroidMesh;
 	Mesh laserMesh;
-	Camera myCamera;
-	Texture texture;
+	Texture shipTexture;
+	Texture asteroidTexture;
+	Texture laserTexture;
 	Transform shipTransform;
 
 	int score;

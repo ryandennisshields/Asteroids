@@ -36,8 +36,8 @@ public:
 	void loadModel(const std::string& filename);
 	void initModel(const IndexedModel& model);
 
-private:
 	GLuint vao = 0;  // Vertex Array Object
+private:
 	GLuint vbo = 0;  // Interleaved Vertex Buffer Object
 	GLuint ebo = 0;  // Index Buffer Object
 	unsigned int drawCount = 0; // Number of indices

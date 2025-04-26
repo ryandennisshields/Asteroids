@@ -18,6 +18,17 @@ MainGame::~MainGame()
 {
 }
 
+float MainGame::getRefreshRate() {
+	SDL_DisplayMode mode;
+	if (SDL_GetCurrentDisplayMode(0, &mode) == 0 && mode.refresh_rate > 0) {
+		float rate = static_cast<float>(mode.refresh_rate);
+		std::cout << "[DEBUG] Detected Refresh Rate: " << rate << " Hz" << std::endl;
+		return rate;
+	}
+	std::cout << "[DEBUG] Could not detect refresh rate. Defaulting to 60 Hz." << std::endl;
+	return 60.0f; // Fallback if query fails or returns 0
+}
+
 void MainGame::run()
 {
 	initSystems(); 
@@ -32,60 +43,7 @@ void MainGame::initSystems() {
 	setupCamera();
 	loadPhysicsEngine();
 	initShip();
-}
-
-void MainGame::initShip() {
-	shipTransform = Transform(glm::vec3(0.0f, 0.0f, 0.0f));
-	ship = new GameObject(&shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
-}
-
-void MainGame::initAsteroid() {
-	AsteroidManager& asteroidManager = AsteroidManager::getInstance();
-	Transform* asteroidTransform = new Transform(asteroidManager.randomiseAsteroidPos(), glm::vec3(0.0f, 0.0f, 0.0f), asteroidManager.randomiseAsteroidScale()); // Spawn in randomised position
-	GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
-	asteroid->forwardDirection = glm::vec3(asteroidManager.randomiseAsteroidForwardDirection(asteroidTransform->pos));
-	asteroids.emplace_back(*asteroid);
-	std::cout << "[DEBUG] Asteroid Created at Position: " << asteroidTransform->pos.x << ", " << asteroidTransform->pos.y << ", " << asteroidTransform->pos.z << std::endl;
-}
-
-float MainGame::getRefreshRate() {
-	SDL_DisplayMode mode;
-	if (SDL_GetCurrentDisplayMode(0, &mode) == 0 && mode.refresh_rate > 0) {
-		float rate = static_cast<float>(mode.refresh_rate);
-		std::cout << "[DEBUG] Detected Refresh Rate: " << rate << " Hz" << std::endl;
-		return rate;
-	}
-	std::cout << "[DEBUG] Could not detect refresh rate. Defaulting to 60 Hz." << std::endl;
-	return 60.0f; // Fallback if query fails or returns 0
-}
-
-void MainGame::calculateDeltaTime() {
-	float currentFrameTime = SDL_GetTicks() / 1000.0f; // Get current time in seconds
-	deltaTime = currentFrameTime - lastFrameTime;
-	lastFrameTime = currentFrameTime;
-}
-
-void MainGame::loadPhysicsEngine() {
-	if (!DLLManager::getInstance().loadDLL("PhysicsEngine.dll")) {
-		std::cerr << "Failed to load PhysicsEngine.dll" << std::endl;
-		return;
-	}
-
-	// Retrieve physics functions using the template method
-	setForwardDirection = DLLManager::getInstance().getFunction<void(*)(GameObject*, glm::vec3)>("PhysicsEngine.dll", "setForwardDirection");
-	applyThrust = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "applyThrust");
-	updatePhysics = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "updatePhysics");
-
-	if (!setForwardDirection || !applyThrust || !updatePhysics) {
-		std::cerr << "Failed to retrieve physics functions!" << std::endl;
-	}
-
-	checkCollisionRadius = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, float, float)>("PhysicsEngine.dll", "checkCollisionRadius");
-	checkCollisionAABB = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, const glm::vec3&, const glm::vec3&)>("PhysicsEngine.dll", "checkCollisionAABB");
-
-	if (!checkCollisionRadius || !checkCollisionAABB) {
-		std::cerr << "Failed to retrieve collision functions!" << std::endl;
-	}
+	initAsteroid();
 }
 
 // 🔹 Loads Meshes
@@ -97,7 +55,10 @@ void MainGame::loadMeshes() {
 
 // 🔹 Loads Textures
 void MainGame::loadTextures() {
-	texture.init("..\\res\\metal.jpg");
+
+	shipTexture.init("..\\res\\metal.jpg");
+	asteroidTexture.init("..\\res\\asteroidrock.jpg");
+	laserTexture.init("..\\res\\laser.jpg");
 }
 
 // 🔹 Sets up UBOs for matrix data
@@ -125,6 +86,43 @@ void MainGame::loadShaders() {
 void MainGame::setupCamera() {
 	myCamera.initCamera(glm::vec3(0, 0, -75), 100.0f,
 		(float)_gameDisplay.getWidth() / _gameDisplay.getHeight(), 0.01f, 1000.0f);
+}
+
+void MainGame::loadPhysicsEngine() {
+	if (!DLLManager::getInstance().loadDLL("PhysicsEngine.dll")) {
+		std::cerr << "Failed to load PhysicsEngine.dll" << std::endl;
+		return;
+	}
+
+	// Retrieve physics functions using the template method
+	setForwardDirection = DLLManager::getInstance().getFunction<void(*)(GameObject*, glm::vec3)>("PhysicsEngine.dll", "setForwardDirection");
+	applyThrust = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "applyThrust");
+	updatePhysics = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "updatePhysics");
+
+	if (!setForwardDirection || !applyThrust || !updatePhysics) {
+		std::cerr << "Failed to retrieve physics functions!" << std::endl;
+	}
+
+	checkCollisionRadius = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, float, float)>("PhysicsEngine.dll", "checkCollisionRadius");
+	checkCollisionAABB = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, const glm::vec3&, const glm::vec3&)>("PhysicsEngine.dll", "checkCollisionAABB");
+
+	if (!checkCollisionRadius || !checkCollisionAABB) {
+		std::cerr << "Failed to retrieve collision functions!" << std::endl;
+	}
+}
+
+void MainGame::initShip() {
+	shipTransform = Transform(glm::vec3(0.0f, 0.0f, 0.0f));
+	ship = new GameObject(&shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
+}
+
+void MainGame::initAsteroid() {
+	AsteroidManager& asteroidManager = AsteroidManager::getInstance();
+	Transform* asteroidTransform = new Transform(asteroidManager.randomiseAsteroidPos(), glm::vec3(0.0f, 0.0f, 0.0f), asteroidManager.randomiseAsteroidScale()); // Spawn in randomised position
+	GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
+	asteroid->forwardDirection = glm::vec3(asteroidManager.randomiseAsteroidForwardDirection(asteroidTransform->pos));
+	asteroids.emplace_back(*asteroid);
+	std::cout << "[DEBUG] Asteroid Created at Position: " << asteroidTransform->pos.x << ", " << asteroidTransform->pos.y << ", " << asteroidTransform->pos.z << std::endl;
 }
 
 void MainGame::gameLoop() {
@@ -213,6 +211,12 @@ void MainGame::fireLaser() {
 	lasers.emplace_back(*laser);
 }
 
+void MainGame::calculateDeltaTime() {
+	float currentFrameTime = SDL_GetTicks() / 1000.0f; // Get current time in seconds
+	deltaTime = currentFrameTime - lastFrameTime;
+	lastFrameTime = currentFrameTime;
+}
+
 void MainGame::updatePlayer(float deltaTime) {
 	if (!ship) return;
 
@@ -245,7 +249,7 @@ void MainGame::update(float deltaTime) {
 	if (fireDelay > 0.0f) 
 		fireDelay -= deltaTime;
 
-	float spawnRate = 0.5f; // Spawn rate in seconds
+	float spawnRate = 0.2f; // Spawn rate in seconds
 
 	if (spawnDelay <= 0.0f) {
 		initAsteroid();
@@ -331,6 +335,12 @@ void MainGame::setActiveShader(const std::string& shaderTag) {
 	}
 }
 
+void MainGame::clearScreenBuffer()
+{
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear colour and depth buffer - set colour to colour defined in glClearColor
+}
+
 void MainGame::renderGameObjects() { // this can be quickly improved for coursework (for our asteroids)
 	Shader* currentShader = nullptr; // Track active shader to avoid redundant binds
 
@@ -339,6 +349,8 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 			currentShader = obj.shader;
 			currentShader->Bind(); // Bind shader only if switching
 		}
+
+		asteroidTexture.Bind(0); // Bind the texture to texture unit 0
 
 		// Update UBO for this object's transform
 		glm::mat4 model = obj.transform->GetModel();
@@ -359,6 +371,8 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 			currentShader = obj.shader;
 			currentShader->Bind(); // Bind shader only if switching
 		}
+
+		laserTexture.Bind(0);
 
 		// Update UBO for this object's transform
 		glm::mat4 model = obj.transform->GetModel();
@@ -387,6 +401,7 @@ void MainGame::renderPlayer() {
 	}
 
 	playerShader->Bind();
+	shipTexture.Bind(0); // Bind the texture to texture unit 0
 	//glBindTexture(GL_TEXTURE_2D, ); // Bind the texture
 
 	glm::mat4 playerModel = ship->transform->GetModel();
@@ -398,12 +413,6 @@ void MainGame::renderPlayer() {
 	UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
 
 	ship->mesh->draw();
-}
-
-void MainGame::clearScreenBuffer()
-{
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear colour and depth buffer - set colour to colour defined in glClearColor
 }
 
 void MainGame::drawGame() {
