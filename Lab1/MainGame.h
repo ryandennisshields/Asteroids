@@ -12,8 +12,9 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "transform.h"
-#include "DisplayFacade.h" 
+#include "DisplayFacade.h"
 #include "GameObject.h"
+#include "EntityManager.h"
 
 enum class GameState{PLAY, EXIT, GAMEOVER};
 

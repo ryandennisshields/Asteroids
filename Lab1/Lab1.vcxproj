@@ -76,8 +76,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AsteroidManager.cpp" />
+    <ClCompile Include="ComponentManager.cpp" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="EntityManager.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -118,6 +121,7 @@
     <None Include="..\res\ADS.vert" />
     <None Include="..\res\glyphs.frag" />
     <None Include="..\res\glyphs.vert" />
+    <None Include="ComponentManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\res\asteroid.obj">

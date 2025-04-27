@@ -93,6 +93,15 @@
     <ClCompile Include="TextManager.cpp">
       <Filter>Source Files\Rendering\Management</Filter>
     </ClCompile>
+    <ClCompile Include="EntityManager.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManager.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentManager.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -165,6 +174,9 @@
     </None>
     <None Include="..\res\glyphs.vert">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ComponentManager.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
