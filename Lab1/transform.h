@@ -5,8 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include "camera.h"
+#include "System.h"
+#include "ECSTransform.h"
+#include "Coordinator.h"
 
-struct Transform
+struct Transform : public System
 {
 public:
 	Transform(const glm::vec3& pos = glm::vec3(), const glm::vec3& rot = glm::vec3(), const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f))
@@ -50,6 +53,32 @@ public:
 	glm::vec3 pos;
 	glm::vec3 rot;
 	glm::vec3 scale;
+
+	//void update(float deltaTime) {
+	//	for (auto const& entity : entities) {
+	//		auto& transform = coordinator.getComponent<ECSTransform>(entity);
+	//	}
+	//}
+
+	//inline glm::mat4 GetModel(const ECSTransform& transform) const
+
+	inline glm::mat4 update(float deltaTime) const
+	{
+		std::vector<Entity> gameEntities(maxEntities);
+		//std::cout << "Entities: " << entities.size() << std::endl;
+		for (auto const& entity : gameEntities) {
+			//std::cout << "something" << std::endl;
+			auto& transform = coordinator.getComponent<ECSTransform>(entity);
+			glm::mat4 posMat = glm::translate(transform.position);
+			glm::mat4 scaleMat = glm::scale(transform.scale);
+			glm::mat4 rotX = glm::rotate(transform.rotation.x, glm::vec3(1.0, 0.0, 0.0));
+			glm::mat4 rotY = glm::rotate(transform.rotation.y, glm::vec3(0.0, 1.0, 0.0));
+			glm::mat4 rotZ = glm::rotate(transform.rotation.z, glm::vec3(0.0, 0.0, 1.0));
+			glm::mat4 rotMat = rotX * rotY * rotZ;
+
+			return posMat * rotMat * scaleMat;
+		}
+	}
 };
 
 

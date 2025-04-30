@@ -102,6 +102,21 @@
     <ClCompile Include="ComponentManager.cpp">
       <Filter>Source Files\Rendering\Management</Filter>
     </ClCompile>
+    <ClCompile Include="SystemManager.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Coordinator.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Coordinator.cpp">
+      <Filter>Source Files\Rendering\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentArray.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSTransform.h">
+      <Filter>Header Files\Rendernig\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -160,6 +175,15 @@
     </ClInclude>
     <ClInclude Include="..\deps\include\ft2build.h">
       <Filter>Header Files\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemManager.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

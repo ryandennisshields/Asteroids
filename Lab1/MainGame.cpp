@@ -36,6 +36,7 @@ void MainGame::run()
 }
 
 void MainGame::initSystems() {
+	initECS();
 	loadMeshes();
 	loadTextures();
 	setupUBOs();
@@ -44,6 +45,31 @@ void MainGame::initSystems() {
 	loadPhysicsEngine();
 	initShip();
 	initAsteroid();
+}
+
+void MainGame::initECS() {
+	coordinator.init();
+
+	coordinator.registerComponent<ECSTransform>();
+
+    transformSystem = *coordinator.registerSystem<Transform>();
+
+	Signature signature;
+	signature.set(coordinator.getComponentType<ECSTransform>()); // Set the signature for the Transform component
+	coordinator.setSystemSignature<Transform>(signature); // Set the signature for the Transform system
+
+	//std::vector<Entity> entities(1);
+
+	//for (auto& entity : entities) {
+	//	entity = coordinator.createEntity(); // Create an entity
+	//	coordinator.addComponent(
+	//		entity,
+	//		ECSTransform{ glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) });
+	//}
+
+	// create a variable in the .h file for entities
+	// for creating the ship, asteroids, and lasers, create an entity for them and add suitable components
+	// then, in rendering loop, render the ships, asteroids and lasers with their transform now controlled by a system using the transform component
 }
 
 // 🔹 Loads Meshes
@@ -112,6 +138,16 @@ void MainGame::loadPhysicsEngine() {
 }
 
 void MainGame::initShip() {
+	// Create an entity for the ship
+	Entity shipEntity = coordinator.createEntity();
+	//shipEntity = coordinator.createEntity(); // Create an entity
+
+	// Add the ECSTransform component to the ship entity
+	coordinator.addComponent(shipEntity, ECSTransform{
+		glm::vec3(0.0f, 0.0f, 0.0f), // Position
+		glm::vec3(0.0f, 0.0f, 0.0f), // Rotation
+		glm::vec3(1.0f, 1.0f, 1.0f)  // Scale
+		});
 	shipTransform = Transform(glm::vec3(0.0f, 0.0f, 0.0f));
 	ship = new GameObject(&shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
 }
@@ -290,12 +326,12 @@ void MainGame::update(float deltaTime) {
 				lasers.erase(lasers.begin() + (&laser - &lasers[0]));
 			}
 		}
-		if (checkCollisionAABB(&asteroid, ship, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))) 
-		{
-			lasers.clear();
-			asteroids.clear();
-			_gameState = GameState::GAMEOVER;
-		}
+		//if (checkCollisionAABB(&asteroid, ship, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f))) 
+		//{
+		//	lasers.clear();
+		//	asteroids.clear();
+		//	_gameState = GameState::GAMEOVER;
+		//}
 	}
 
 	float laserSpeed = 15.0f;
@@ -404,7 +440,9 @@ void MainGame::renderPlayer() {
 	shipTexture.Bind(0); // Bind the texture to texture unit 0
 	//glBindTexture(GL_TEXTURE_2D, ); // Bind the texture
 
-	glm::mat4 playerModel = ship->transform->GetModel();
+	//glm::mat4 playerModel = ship->transform->GetModel();
+	//Transform transform;
+	glm::mat4 playerModel = transformSystem.update(deltaTime);
 	glm::mat4 view = myCamera.getView();
 	glm::mat4 projection = myCamera.getProjection();
 

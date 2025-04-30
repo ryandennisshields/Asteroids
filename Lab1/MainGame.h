@@ -14,7 +14,9 @@
 #include "transform.h"
 #include "DisplayFacade.h"
 #include "GameObject.h"
-#include "EntityManager.h"
+#include "Coordinator.h"
+// Components
+#include "ECSTransform.h"
 
 enum class GameState{PLAY, EXIT, GAMEOVER};
 
@@ -30,6 +32,7 @@ private:
 
 	void setActiveShader(const std::string& shaderTag);
 	void initSystems();
+	void initECS();
 	void processInput();
 	void fireLaser();
 	void gameLoop();
@@ -50,6 +53,9 @@ private:
 	void updatePlayer(float deltaTime);
 	void update(float deltaTime);
 	float getRefreshRate();
+
+	//Coordinator coordinator; // Coordinator instance
+	Transform transformSystem;
 
 	DisplayFacade _gameDisplay;
 	GameState _gameState;

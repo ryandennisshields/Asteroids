@@ -1,30 +1,25 @@
-//
-// This was used as a guide:
-// https://austinmorlan.com/posts/entity_component_system/
-//
-#include <vector>
+#pragma once  
+
+#include "Types.h"
+#include <queue>
+#include <array>
 #include <iostream>
-#include <algorithm>
 
-class EntityManager 
-{
-public:
-	using Entity = unsigned int; // Entities as unsigned int (for IDs)
-	using Signature = unsigned long long; // Signature as unsigned long long (for bitmask)
+class EntityManager  
+{  
+public:  
+   EntityManager();  
 
-	static EntityManager& getInstance();
+   Entity createEntity();  
+   void destroyEntity(Entity entity);  
 
-	EntityManager();
+   void setSignature(Entity entity, Signature signature);  
+   Signature getSignature(Entity entity); 
 
-	Entity createEntity();
-	void destroyEntity(Entity entity);
+private:  
+   std::queue<Entity> availableEntities{}; // Vector of available entities  
 
-	void setSignature(Entity entity, Signature signature);
-	Signature getSignature(Entity entity);
-private:
-	std::vector<Entity> entities; // Vector of available entities
+   std::array<Signature, maxEntities> signatures; // Array of entity signatures 
 
-	std::vector<Signature> signatures; // Vector of entity signatures
-
-	int maxEntities; // Maximum number of entitie
+   uint32_t livingEntityCount{}; // Count of living entities
 };

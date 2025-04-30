@@ -76,9 +76,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AsteroidManager.cpp" />
+    <ClCompile Include="ComponentArray.h" />
     <ClCompile Include="ComponentManager.cpp" />
+    <ClCompile Include="Coordinator.cpp" />
+    <ClCompile Include="Coordinator.h" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
+    <ClCompile Include="ECSTransform.h" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="EntityManager.h" />
     <ClCompile Include="main.cpp" />
@@ -89,6 +93,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="stb_image.c" />
+    <ClCompile Include="SystemManager.cpp" />
     <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TransformManager.cpp" />
@@ -109,10 +114,13 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="SystemManager.h" />
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="TransformManager.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="UBOManager.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
