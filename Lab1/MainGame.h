@@ -9,14 +9,15 @@
 #include "TextManager.h"
 #include "UBOManager.h"
 #include "AsteroidManager.h"
-#include "Mesh.h"
 #include "Texture.h"
-#include "transform.h"
 #include "DisplayFacade.h"
-#include "GameObject.h"
 #include "Coordinator.h"
 // Components
-#include "ECSTransform.h"
+#include "Transform.h"
+#include "Mesh.h"
+// Systems
+#include "TransformSystem.h"
+#include "MeshSystem.h"
 
 enum class GameState{PLAY, EXIT, GAMEOVER};
 
@@ -54,19 +55,19 @@ private:
 	void update(float deltaTime);
 	float getRefreshRate();
 
-	//Coordinator coordinator; // Coordinator instance
-	Transform transformSystem;
+	TransformSystem transformSystem;
+	MeshSystem meshSystem;
 
 	DisplayFacade _gameDisplay;
 	GameState _gameState;
 	Camera myCamera;
-	Mesh shipMesh;
-	Mesh asteroidMesh;
-	Mesh laserMesh;
+	MeshSystem shipMesh;
+	MeshSystem asteroidMesh;
+	MeshSystem laserMesh;
 	Texture shipTexture;
 	Texture asteroidTexture;
 	Texture laserTexture;
-	Transform shipTransform;
+	Transform* shipTransform;
 
 	int score;
 	float spawnDelay;
@@ -77,17 +78,17 @@ private:
 	float accumulator = 0.0f;
 	mutable float fixedTimeStep; // 60 physics updates per second
 
-	GameObject* ship; // Store a pointer to the ship
-	std::vector<GameObject> asteroids; // Store all asteroids
-	std::vector<GameObject> lasers;
+	Entity* ship; // Store a pointer to the ship
+	std::vector<Entity> asteroids; // Store all asteroids
+	std::vector<Entity> lasers;
 	std::string activeShaderTag; // Track the active shader
 
 	// Function pointers for physics engine functions
-	void (*setForwardDirection)(GameObject*, glm::vec3) = nullptr;
-	void (*applyThrust)(GameObject*, float) = nullptr;
-	void (*updatePhysics)(GameObject*, float) = nullptr;
+	void (*setForwardDirection)(const Entity*, glm::vec3) = nullptr;
+	void (*applyThrust)(const Entity*, float) = nullptr;
+	void (*updatePhysics)(const Entity*, float) = nullptr;
 
-	bool (*checkCollisionRadius)(const GameObject*, const GameObject*, float, float) = nullptr;
-	bool (*checkCollisionAABB)(const GameObject*, const GameObject*, const glm::vec3&, const glm::vec3&) = nullptr;
+	bool (*checkCollisionRadius)(const Entity*, const Entity*, float, float) = nullptr;
+	bool (*checkCollisionAABB)(const Entity*, const Entity*, const glm::vec3&, const glm::vec3&) = nullptr;
 };
 

@@ -60,7 +60,7 @@
     <ClCompile Include="MainGame.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="MeshSystem.cpp">
       <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
     <ClCompile Include="obj_loader.cpp">
@@ -76,9 +76,6 @@
       <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>Source Files\Rendering\Management</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformManager.cpp">
       <Filter>Source Files\Rendering\Management</Filter>
     </ClCompile>
     <ClCompile Include="UBOManager.cpp">
@@ -114,7 +111,7 @@
     <ClCompile Include="ComponentArray.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClCompile>
-    <ClCompile Include="ECSTransform.h">
+    <ClCompile Include="Transform.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,7 +146,7 @@
     <ClInclude Include="Texture.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
-    <ClInclude Include="transform.h">
+    <ClInclude Include="TransformSystem.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
@@ -184,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="System.h">
       <Filter>Header Files\Rendernig\Management</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshSystem.h">
+      <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

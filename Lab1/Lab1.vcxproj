@@ -82,12 +82,12 @@
     <ClCompile Include="Coordinator.h" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
-    <ClCompile Include="ECSTransform.h" />
+    <ClCompile Include="Transform.h" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="EntityManager.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
-    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshSystem.cpp" />
     <ClCompile Include="obj_loader.cpp" />
     <ClCompile Include="OpenGLContext.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -96,7 +96,6 @@
     <ClCompile Include="SystemManager.cpp" />
     <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TransformManager.cpp" />
     <ClCompile Include="UBOManager.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -109,6 +108,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshSystem.h" />
     <ClInclude Include="obj_loader.h" />
     <ClInclude Include="OpenGLContext.h" />
     <ClInclude Include="Shader.h" />
@@ -118,7 +118,7 @@
     <ClInclude Include="SystemManager.h" />
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="transform.h" />
+    <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="TransformManager.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="UBOManager.h" />

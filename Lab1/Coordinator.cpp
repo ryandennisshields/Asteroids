@@ -1,7 +1,5 @@
 #include "Coordinator.h"
 
-Coordinator coordinator; // Coordinator instance
-
 void Coordinator::init()
 {
    entityManager = std::make_unique<EntityManager>();
@@ -20,3 +18,6 @@ void Coordinator::destroyEntity(Entity entity)
 	componentManager->entityDestroyed(entity); // Notify the component manager that the entity has been destroyed
 	systemManager->entityDestroyed(entity); // Notify the system manager that the entity has been destroyed
 }
+
+std::vector<Entity> gameEntities(maxEntities); // Vector to hold game entities
+Coordinator coordinator; // Coordinator instance

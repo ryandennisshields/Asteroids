@@ -1,84 +1,12 @@
 #pragma once
-#include <string>
-#include <iostream>
-#include "Window.h"
+
 #include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include "camera.h"
-#include "System.h"
-#include "ECSTransform.h"
-#include "Coordinator.h"
 
-struct Transform : public System
+struct Transform 
 {
-public:
-	Transform(const glm::vec3& pos = glm::vec3(), const glm::vec3& rot = glm::vec3(), const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f))
-	{
-		this->pos = pos;
-		this->rot = rot;
-		this->scale = scale;
-	}
-
-	inline glm::mat4 GetModel() const
-	{
-		glm::mat4 posMat = glm::translate(pos);
-		glm::mat4 scaleMat = glm::scale(scale);
-		glm::mat4 rotX = glm::rotate(rot.x, glm::vec3(1.0, 0.0, 0.0));
-		glm::mat4 rotY = glm::rotate(rot.y, glm::vec3(0.0, 1.0, 0.0));
-		glm::mat4 rotZ = glm::rotate(rot.z, glm::vec3(0.0, 0.0, 1.0));
-		glm::mat4 rotMat = rotX * rotY * rotZ;
-
-		return posMat * rotMat * scaleMat;
-	}
-
-	/*inline glm::mat4 GetMVP(const Camera& camera) const
-	{
-		glm::mat4 VP = camera.GetViewProjection();
-		glm::mat4 M = GetModel();
-
-		return VP * M;//camera.GetViewProjection() * GetModel();
-	}*/
-
-	inline glm::vec3 GetPos() { return pos; } //getters
-	inline glm::vec3* GetRot() { return &rot; }
-	inline glm::vec3* GetScale() { return &scale; }
-
-	inline void SetPos(glm::vec3& pos) { this->pos = pos; } // setters
-	inline void SetRot(glm::vec3& newRot) {
-		std::cout << "SetRot called: " << glm::degrees(newRot.y) << " degrees\n";
-		this->rot = newRot;
-	}
-	inline void SetScale(glm::vec3& scale) { this->scale = scale; }
-
-	glm::vec3 pos;
-	glm::vec3 rot;
+	glm::vec3 position;
+	glm::vec3 rotation;
 	glm::vec3 scale;
-
-	//void update(float deltaTime) {
-	//	for (auto const& entity : entities) {
-	//		auto& transform = coordinator.getComponent<ECSTransform>(entity);
-	//	}
-	//}
-
-	//inline glm::mat4 GetModel(const ECSTransform& transform) const
-
-	inline glm::mat4 update(float deltaTime) const
-	{
-		std::vector<Entity> gameEntities(maxEntities);
-		//std::cout << "Entities: " << entities.size() << std::endl;
-		for (auto const& entity : gameEntities) {
-			//std::cout << "something" << std::endl;
-			auto& transform = coordinator.getComponent<ECSTransform>(entity);
-			glm::mat4 posMat = glm::translate(transform.position);
-			glm::mat4 scaleMat = glm::scale(transform.scale);
-			glm::mat4 rotX = glm::rotate(transform.rotation.x, glm::vec3(1.0, 0.0, 0.0));
-			glm::mat4 rotY = glm::rotate(transform.rotation.y, glm::vec3(0.0, 1.0, 0.0));
-			glm::mat4 rotZ = glm::rotate(transform.rotation.z, glm::vec3(0.0, 0.0, 1.0));
-			glm::mat4 rotMat = rotX * rotY * rotZ;
-
-			return posMat * rotMat * scaleMat;
-		}
-	}
+	glm::vec3 forwardDirection = glm::vec3(0, 1, 0);
+	glm::vec3 velocity = glm::vec3(0);
 };
-
-

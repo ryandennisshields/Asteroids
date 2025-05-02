@@ -50,13 +50,23 @@ void MainGame::initSystems() {
 void MainGame::initECS() {
 	coordinator.init();
 
-	coordinator.registerComponent<ECSTransform>();
+	// Register components
+	coordinator.registerComponent<Transform>();
+	coordinator.registerComponent<Mesh>();
 
-    transformSystem = *coordinator.registerSystem<Transform>();
+	// Register systems
+	transformSystem = *coordinator.registerSystem<TransformSystem>();
+	meshSystem = *coordinator.registerSystem<MeshSystem>();
 
-	Signature signature;
-	signature.set(coordinator.getComponentType<ECSTransform>()); // Set the signature for the Transform component
-	coordinator.setSystemSignature<Transform>(signature); // Set the signature for the Transform system
+	// Set system signatures
+	Signature transformSignature;
+	transformSignature.set(coordinator.getComponentType<Transform>());
+	coordinator.setSystemSignature<TransformSystem>(transformSignature);
+
+	Signature meshSignature;
+	meshSignature.set(coordinator.getComponentType<Transform>()); // Meshes need transforms for rendering
+	meshSignature.set(coordinator.getComponentType<Mesh>());
+	coordinator.setSystemSignature<MeshSystem>(meshSignature);
 
 	//std::vector<Entity> entities(1);
 
@@ -121,16 +131,16 @@ void MainGame::loadPhysicsEngine() {
 	}
 
 	// Retrieve physics functions using the template method
-	setForwardDirection = DLLManager::getInstance().getFunction<void(*)(GameObject*, glm::vec3)>("PhysicsEngine.dll", "setForwardDirection");
-	applyThrust = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "applyThrust");
-	updatePhysics = DLLManager::getInstance().getFunction<void(*)(GameObject*, float)>("PhysicsEngine.dll", "updatePhysics");
+	setForwardDirection = DLLManager::getInstance().getFunction<void(*)(const Entity*, glm::vec3)>("PhysicsEngine.dll", "setForwardDirection");
+	applyThrust = DLLManager::getInstance().getFunction<void(*)(const Entity*, float)>("PhysicsEngine.dll", "applyThrust");
+	updatePhysics = DLLManager::getInstance().getFunction<void(*)(const Entity*, float)>("PhysicsEngine.dll", "updatePhysics");
 
 	if (!setForwardDirection || !applyThrust || !updatePhysics) {
 		std::cerr << "Failed to retrieve physics functions!" << std::endl;
 	}
 
-	checkCollisionRadius = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, float, float)>("PhysicsEngine.dll", "checkCollisionRadius");
-	checkCollisionAABB = DLLManager::getInstance().getFunction<bool(*)(const GameObject*, const GameObject*, const glm::vec3&, const glm::vec3&)>("PhysicsEngine.dll", "checkCollisionAABB");
+	checkCollisionRadius = DLLManager::getInstance().getFunction<bool(*)(const Entity*, const Entity*, float, float)>("PhysicsEngine.dll", "checkCollisionRadius");
+	checkCollisionAABB = DLLManager::getInstance().getFunction<bool(*)(const Entity*, const Entity*, const glm::vec3&, const glm::vec3&)>("PhysicsEngine.dll", "checkCollisionAABB");
 
 	if (!checkCollisionRadius || !checkCollisionAABB) {
 		std::cerr << "Failed to retrieve collision functions!" << std::endl;
@@ -143,22 +153,31 @@ void MainGame::initShip() {
 	//shipEntity = coordinator.createEntity(); // Create an entity
 
 	// Add the ECSTransform component to the ship entity
-	coordinator.addComponent(shipEntity, ECSTransform{
+	coordinator.addComponent(shipEntity, Transform{
 		glm::vec3(0.0f, 0.0f, 0.0f), // Position
 		glm::vec3(0.0f, 0.0f, 0.0f), // Rotation
 		glm::vec3(1.0f, 1.0f, 1.0f)  // Scale
 		});
-	shipTransform = Transform(glm::vec3(0.0f, 0.0f, 0.0f));
-	ship = new GameObject(&shipMesh, &shipTransform, ShaderManager::getInstance().getShader("ADS").get());
+	coordinator.addComponent(shipEntity, Mesh{
+
+	shipTransform = &coordinator.getComponent<Transform>(shipEntity); // Get the transform component for the ship entity
+	//ship = new GameObject(&shipMesh, shipTransform, ShaderManager::getInstance().getShader("ADS").get());
 }
 
 void MainGame::initAsteroid() {
+	Entity asteroidEntity = coordinator.createEntity();
+
 	AsteroidManager& asteroidManager = AsteroidManager::getInstance();
-	Transform* asteroidTransform = new Transform(asteroidManager.randomiseAsteroidPos(), glm::vec3(0.0f, 0.0f, 0.0f), asteroidManager.randomiseAsteroidScale()); // Spawn in randomised position
-	GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
-	asteroid->forwardDirection = glm::vec3(asteroidManager.randomiseAsteroidForwardDirection(asteroidTransform->pos));
-	asteroids.emplace_back(*asteroid);
-	std::cout << "[DEBUG] Asteroid Created at Position: " << asteroidTransform->pos.x << ", " << asteroidTransform->pos.y << ", " << asteroidTransform->pos.z << std::endl;
+	coordinator.addComponent(asteroidEntity, Transform{
+		asteroidManager.randomiseAsteroidPos(),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		asteroidManager.randomiseAsteroidScale()
+		});
+	Transform* asteroidTransform = &coordinator.getComponent<Transform>(asteroidEntity); // Get the transform component for the asteroid entity
+	//GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
+	asteroidTransform->forwardDirection = glm::vec3(asteroidManager.randomiseAsteroidForwardDirection(asteroidTransform->position));
+	asteroids.emplace_back(asteroidEntity);
+	//std::cout << "[DEBUG] Asteroid Created at Position: " << asteroidTransform->pos.x << ", " << asteroidTransform->pos.y << ", " << asteroidTransform->pos.z << std::endl;
 }
 
 void MainGame::gameLoop() {
@@ -214,20 +233,20 @@ void MainGame::handleKeyPress(const Uint8* keystates) {
 	}
 
 	// Cap velocity
-	ship->velocity.x = std::clamp(ship->velocity.x, -velocityCap, velocityCap);
-	ship->velocity.y = std::clamp(ship->velocity.y, -velocityCap, velocityCap);
+	shipTransform->velocity.x = std::clamp(shipTransform->velocity.x, -velocityCap, velocityCap);
+	shipTransform->velocity.y = std::clamp(shipTransform->velocity.y, -velocityCap, velocityCap);
 
 	if (keystates[SDL_SCANCODE_A]) {
 		if (setForwardDirection) {
-			shipTransform.rot.z -= glm::radians(rotationSpeed * deltaTime);
-			setForwardDirection(ship, shipTransform.rot);
+			shipTransform->rotation.z -= glm::radians(rotationSpeed * deltaTime);
+			setForwardDirection(ship, shipTransform->rotation);
 		}
 	}
 
 	if (keystates[SDL_SCANCODE_D]) {
 		if (setForwardDirection) {
-			shipTransform.rot.z += glm::radians(rotationSpeed * deltaTime);
-			setForwardDirection(ship, shipTransform.rot);
+			shipTransform->rotation.z += glm::radians(rotationSpeed * deltaTime);
+			setForwardDirection(ship, shipTransform->rotation);
 		}
 	}
 
@@ -241,10 +260,19 @@ void MainGame::handleKeyPress(const Uint8* keystates) {
 
 
 void MainGame::fireLaser() {
-	Transform* laserTransform = new Transform(shipTransform.pos, shipTransform.rot);
-	GameObject* laser = new GameObject(&laserMesh, laserTransform , ShaderManager::getInstance().getShader("ADS").get());
-	laser->forwardDirection = glm::vec3(ship->forwardDirection);
-	lasers.emplace_back(*laser);
+	Entity laserEntity = coordinator.createEntity();
+	//shipEntity = coordinator.createEntity(); // Create an entity
+
+	// Add the ECSTransform component to the ship entity
+	coordinator.addComponent(laserEntity, Transform{
+		shipTransform->position , // Position
+		shipTransform->rotation, // Rotation
+		glm::vec3(1.0f, 1.0f, 1.0f)  // Scale
+		});
+	Transform* laserTransform = shipTransform;
+	//GameObject* laser = new GameObject(&laserMesh, laserTransform , ShaderManager::getInstance().getShader("ADS").get());
+	laserTransform->forwardDirection = glm::vec3(shipTransform->forwardDirection);
+	lasers.emplace_back(laserEntity);
 }
 
 void MainGame::calculateDeltaTime() {
@@ -256,8 +284,9 @@ void MainGame::calculateDeltaTime() {
 void MainGame::updatePlayer(float deltaTime) {
 	if (!ship) return;
 
+	//auto& shipTransform = coordinator.getComponent<Transform>(gameEntities[0]);
 	// Apply velocity to position
-	shipTransform.pos += ship->velocity * deltaTime;
+	shipTransform->position += shipTransform->velocity * deltaTime;
 
 	// Debugging: Ensure position updates
 	/*std::cout << "Player Position: "
@@ -266,15 +295,15 @@ void MainGame::updatePlayer(float deltaTime) {
 	float wrapPosX = 32.5f;
 	float wrapPosY = 20.0f;
 
-	glm::vec3 shipPos = ship->transform->GetPos();
+	glm::vec3 shipPos = shipTransform->position;
 	if (shipPos.x > wrapPosX)
-		ship->transform->pos.x = -wrapPosX;
+		shipTransform->position.x = -wrapPosX;
 	if (shipPos.x < -wrapPosX) 
-		ship->transform->pos.x = wrapPosX;
+		shipTransform->position.x = wrapPosX;
 	if (shipPos.y > wrapPosY)
-		ship->transform->pos.y = -wrapPosY;
+		shipTransform->position.y = -wrapPosY;
 	if (shipPos.y < -wrapPosY) 
-		ship->transform->pos.y = wrapPosY;
+		shipTransform->position.y = wrapPosY;
 	//std::cout << "ship position: " << ship->transform->GetPos().x << ", " << ship->transform->GetPos().y << ", " << ship->transform->GetPos().z << std::endl;
 }
 
@@ -299,17 +328,17 @@ void MainGame::update(float deltaTime) {
 
 	for (auto& asteroid : asteroids) {
 
-		Transform* asteroidTransform = asteroid.transform;
+		auto* asteroidTransform = &coordinator.getComponent<Transform>(asteroid);
 
-		asteroidTransform->pos += asteroid.forwardDirection * asteroidSpeed * deltaTime; // Move asteroid forward
+		asteroidTransform->position += asteroidTransform->forwardDirection * asteroidSpeed * deltaTime; // Move asteroid forward
 
-		if (asteroidTransform->pos.x > deleteBoundsX) 
+		if (asteroidTransform->position.x > deleteBoundsX) 
 			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
-		if (asteroidTransform->pos.x < -deleteBoundsX)
+		if (asteroidTransform->position.x < -deleteBoundsX)
 			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
-		if (asteroidTransform->pos.y > deleteBoundsY)
+		if (asteroidTransform->position.y > deleteBoundsY)
 			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
-		if (asteroidTransform->pos.y < -deleteBoundsY)
+		if (asteroidTransform->position.y < -deleteBoundsY)
 			asteroids.erase(asteroids.begin() + (&asteroid - &asteroids[0])); // Remove asteroidect
 
 		for (auto& laser : lasers) {
@@ -338,17 +367,17 @@ void MainGame::update(float deltaTime) {
 
 	for (auto& laser : lasers) {
 
-		laser.transform->pos += laser.forwardDirection * laserSpeed * deltaTime; // Move laser forward
+		auto* laserTransform = &coordinator.getComponent<Transform>(laser);
 
-		glm::vec3 laserPos = laser.transform->GetPos();
+		laserTransform->position += laserTransform->forwardDirection * laserSpeed * deltaTime; // Move laser forward
 
-		if (laserPos.x > deleteBoundsX)
+		if (laserTransform->position.x > deleteBoundsX)
 			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
-		if (laserPos.x < -deleteBoundsX)
+		if (laserTransform->position.x < -deleteBoundsX)
 			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
-		if (laserPos.y > deleteBoundsY)
+		if (laserTransform->position.y > deleteBoundsY)
 			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
-		if (laserPos.y < -deleteBoundsY)
+		if (laserTransform->position.y < -deleteBoundsY)
 			lasers.erase(lasers.begin() + (&laser - &lasers[0])); // Remove object
 	}
 
@@ -381,15 +410,19 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 	Shader* currentShader = nullptr; // Track active shader to avoid redundant binds
 
 	for (auto& obj : asteroids) {
-		if (obj.shader != currentShader) {
-			currentShader = obj.shader;
-			currentShader->Bind(); // Bind shader only if switching
-		}
+		//if (obj.shader != currentShader) {
+		//	currentShader = obj.shader;
+		//	currentShader->Bind(); // Bind shader only if switching
+		//}
+
+		currentShader = ShaderManager::getInstance().getShader("ADS").get();
+		currentShader->Bind(); // Bind shader only if switching
 
 		asteroidTexture.Bind(0); // Bind the texture to texture unit 0
 
 		// Update UBO for this object's transform
-		glm::mat4 model = obj.transform->GetModel();
+		//glm::mat4 model = obj.transform->GetModel();
+		glm::mat4 model = transformSystem.update();
 		glm::mat4 view = myCamera.getView();
 		glm::mat4 projection = myCamera.getProjection();
 
@@ -411,7 +444,8 @@ void MainGame::renderGameObjects() { // this can be quickly improved for coursew
 		laserTexture.Bind(0);
 
 		// Update UBO for this object's transform
-		glm::mat4 model = obj.transform->GetModel();
+		//glm::mat4 model = obj.transform->GetModel();
+		glm::mat4 model = transformSystem.update();
 		glm::mat4 view = myCamera.getView();
 		glm::mat4 projection = myCamera.getProjection();
 
@@ -442,7 +476,7 @@ void MainGame::renderPlayer() {
 
 	//glm::mat4 playerModel = ship->transform->GetModel();
 	//Transform transform;
-	glm::mat4 playerModel = transformSystem.update(deltaTime);
+	glm::mat4 playerModel = transformSystem.update();
 	glm::mat4 view = myCamera.getView();
 	glm::mat4 projection = myCamera.getProjection();
 
@@ -451,16 +485,23 @@ void MainGame::renderPlayer() {
 	UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
 
 	ship->mesh->draw();
+
+	//std::cout << "ship position: " << ship->transform->position.x << ", " << ship->transform->position.y << ", " << ship->transform->position.z << std::endl;
 }
 
 void MainGame::drawGame() {
 	TextManager& textManager = TextManager::getInstance();
 	clearScreenBuffer();
-	if (_gameState == GameState::PLAY) 
+	if (_gameState == GameState::PLAY)
 	{
 		textManager.renderText(*ShaderManager::getInstance().getShader("glyphs").get(), std::to_string(score), 125.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		renderPlayer();
 		renderGameObjects(); // Now handles full rendering
+		//for (auto const& entity : gameEntities) {
+		//	auto& transform = coordinator.getComponent<Transform>(entity);
+
+		//	transform.position += glm::vec3(0.1f * deltaTime, 0.0f, 0.0f); // Update position
+		//}
 	}
 	if (_gameState == GameState::GAMEOVER) 
 	{

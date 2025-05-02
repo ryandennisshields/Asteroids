@@ -1,16 +1,15 @@
-﻿#include "Mesh.h"
-#include <iostream>
+﻿#include "MeshSystem.h"
 
-Mesh::Mesh() {
+MeshSystem::MeshSystem() {
 }
 
-Mesh::~Mesh() {
+MeshSystem::~MeshSystem() {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
     glDeleteVertexArrays(1, &vao);
 }
 
-void Mesh::init(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices) {
+void MeshSystem::init(Mesh* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices) {
     IndexedModel model;
 
     for (unsigned int i = 0; i < numVertices; i++) {
@@ -26,7 +25,7 @@ void Mesh::init(Vertex* vertices, unsigned int numVertices, unsigned int* indice
     initModel(model);
 }
 
-void Mesh::initModel(const IndexedModel& model) {
+void MeshSystem::initModel(const IndexedModel& model) {
     drawCount = model.indices.size();
 
     if (model.positions.empty() || model.texCoords.empty() || model.normals.empty()) {
@@ -79,12 +78,12 @@ void Mesh::initModel(const IndexedModel& model) {
     glBindVertexArray(0);
 }
 
-void Mesh::loadModel(const std::string& filename) {
+void MeshSystem::loadModel(const std::string& filename) {
     IndexedModel model = OBJModel(filename).ToIndexedModel();
     initModel(model);
 } 
 
-void Mesh::draw() {
+void MeshSystem::draw() {
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, drawCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

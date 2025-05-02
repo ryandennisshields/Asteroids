@@ -79,4 +79,5 @@ public:
 	std::unique_ptr<SystemManager> systemManager; // System manager instance
 };
 
+extern std::vector<Entity> gameEntities;
 extern Coordinator coordinator; // Declare the coordinator instance

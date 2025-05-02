@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <GL\glew.h>
-#include "transform.h"
+#include "TransformSystem.h"
 #include "Camera.h"
 #include <iostream>
 #include <fstream>
@@ -12,7 +12,7 @@ public:
 	Shader();
 
 	void Bind(); //Set gpu to use our shaders
-	void Update(const Transform& transform, const Camera& camera);
+	void Update(const TransformSystem& transform, const Camera& camera);
 	void init(const std::string& vertFile, const std::string& fragFile);
 	void initGeo();
 

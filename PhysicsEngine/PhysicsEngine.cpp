@@ -6,23 +6,27 @@ extern "C" PHYSICS_API void HelloWorld() {
     std::cout << "Hello from Physics Engine DLL!" << std::endl;
 }
 
-extern "C" PHYSICS_API void setForwardDirection(GameObject* obj, glm::vec3 newForward) {
+extern "C" PHYSICS_API void setForwardDirection(const Entity* obj, glm::vec3 newForward) {
     // Access the Z-axis rotation (in radians)
-    float angle = obj->transform->GetRot()->z;
+	auto* transform = &coordinator.getComponent<Transform>(*obj);
+
+	float angle = transform->rotation.z;
 
     // Compute 2D forward direction based on rotation
     glm::vec3 forward(-sin(angle), cos(angle), 0.0f);
 
-    obj->forwardDirection = glm::normalize(forward);
+    transform->forwardDirection = glm::normalize(forward);
 }
 
-extern "C" PHYSICS_API void applyThrust(GameObject* obj, float thrustAmount) {
-    if (!obj || !obj->transform || !obj->transform->GetRot()) {
+extern "C" PHYSICS_API void applyThrust(const Entity* obj, float thrustAmount) {
+    auto* transform = &coordinator.getComponent<Transform>(*obj);
+
+    if (!obj || !transform || !transform->rotation.z) {
         std::cerr << "[ERROR] applyThrust: Invalid transform or rotation pointer.\n";
         return;
     }
 
-    float angle = -obj->transform->GetRot()->z + glm::pi<float>();
+    float angle = -transform->rotation.z + glm::pi<float>();
 
     glm::vec3 thrustDirection;
     thrustDirection.x = sin(angle);
@@ -35,29 +39,33 @@ extern "C" PHYSICS_API void applyThrust(GameObject* obj, float thrustAmount) {
         //thrustAmount = 0.3f; // cap thrust
 
     //if (glm::abs(obj->velocity.x) <= 1.0f && glm::abs(obj->velocity.y) <= 1.0f)
-        obj->velocity -= thrustDirection * thrustAmount; // cap velocity
+        transform->velocity -= thrustDirection * thrustAmount; // cap velocity
 
-    std::cout << "Velocity: " << obj->velocity.x << ", "
-        << obj->velocity.y << ", " << obj->velocity.z << std::endl;
+    std::cout << "Velocity: " << transform->velocity.x << ", "
+        << transform->velocity.y << ", " << transform->velocity.z << std::endl;
 }
 
-extern "C" PHYSICS_API void updatePhysics(GameObject* obj, float deltaTime) {
+extern "C" PHYSICS_API void updatePhysics(const Entity* obj, float deltaTime) {
     if (!obj) return; // Safety check
+
+    auto* transform = &coordinator.getComponent<Transform>(*obj);
 
     float dragFactor = 0.98f; // Apply drag each frame
 
     // Apply drag gradually over time
-    obj->velocity *= dragFactor;
+    transform->velocity *= dragFactor;
 
     // Ensure velocity approaches zero without stalling due to floating-point precision
-    if (glm::length(obj->velocity) < 0.001f) {
-        obj->velocity = glm::vec3(0.0f);
+    if (glm::length(transform->velocity) < 0.001f) {
+        transform->velocity = glm::vec3(0.0f);
     }
 }
 
-extern "C" PHYSICS_API bool checkCollisionRadius(const GameObject* a, const GameObject* b, float radiusA, float radiusB) {
-    glm::vec3 posA = a->transform->pos;
-    glm::vec3 posB = b->transform->pos;
+extern "C" PHYSICS_API bool checkCollisionRadius(const Entity* a, const Entity* b, float radiusA, float radiusB) {
+    auto* transformA = &coordinator.getComponent<Transform>(*a);
+    auto* transformB = &coordinator.getComponent<Transform>(*b);
+    glm::vec3 posA = transformA->position;
+    glm::vec3 posB = transformB->position;
     float distance = glm::distance(posA, posB);
     if (distance < (radiusA + radiusB)) 
     {
@@ -70,9 +78,11 @@ extern "C" PHYSICS_API bool checkCollisionRadius(const GameObject* a, const Game
     }
 }
 
-extern "C" PHYSICS_API bool checkCollisionAABB(const GameObject* a, const GameObject* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
-    glm::vec3 posA = a->transform->pos;
-    glm::vec3 posB = b->transform->pos;
+extern "C" PHYSICS_API bool checkCollisionAABB(const Entity* a, const Entity* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
+    auto* transformA = &coordinator.getComponent<Transform>(*a);
+    auto* transformB = &coordinator.getComponent<Transform>(*b);
+    glm::vec3 posA = transformA->position;
+    glm::vec3 posB = transformB->position;
     if (abs(posA.x - posB.x) < (halfExtentsA.x + halfExtentsB.x) &&
         abs(posA.y - posB.y) < (halfExtentsA.y + halfExtentsB.y) &&
         abs(posA.z - posB.z) < (halfExtentsA.z + halfExtentsB.z))
