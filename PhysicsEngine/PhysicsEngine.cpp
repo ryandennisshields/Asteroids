@@ -1,15 +1,7 @@
 #include "PhysicsEngine.h"
-#include <iostream>
 
-// Function implementation
-extern "C" PHYSICS_API void HelloWorld() {
-    std::cout << "Hello from Physics Engine DLL!" << std::endl;
-}
-
-extern "C" PHYSICS_API void setForwardDirection(const Entity* obj, glm::vec3 newForward) {
+extern "C" PHYSICS_API void setForwardDirection(Transform* transform, glm::vec3 newForward) {
     // Access the Z-axis rotation (in radians)
-	auto* transform = &coordinator.getComponent<Transform>(*obj);
-
 	float angle = transform->rotation.z;
 
     // Compute 2D forward direction based on rotation
@@ -18,10 +10,9 @@ extern "C" PHYSICS_API void setForwardDirection(const Entity* obj, glm::vec3 new
     transform->forwardDirection = glm::normalize(forward);
 }
 
-extern "C" PHYSICS_API void applyThrust(const Entity* obj, float thrustAmount) {
-    auto* transform = &coordinator.getComponent<Transform>(*obj);
+extern "C" PHYSICS_API void applyThrust(Transform* transform, float thrustAmount) {
 
-    if (!obj || !transform || !transform->rotation.z) {
+    if (!transform || !transform->rotation.z) {
         std::cerr << "[ERROR] applyThrust: Invalid transform or rotation pointer.\n";
         return;
     }
@@ -45,10 +36,8 @@ extern "C" PHYSICS_API void applyThrust(const Entity* obj, float thrustAmount) {
         << transform->velocity.y << ", " << transform->velocity.z << std::endl;
 }
 
-extern "C" PHYSICS_API void updatePhysics(const Entity* obj, float deltaTime) {
-    if (!obj) return; // Safety check
-
-    auto* transform = &coordinator.getComponent<Transform>(*obj);
+extern "C" PHYSICS_API void updatePhysics(Transform* transform, float deltaTime) {
+    if (!transform) return; // Safety check
 
     float dragFactor = 0.98f; // Apply drag each frame
 
@@ -61,11 +50,9 @@ extern "C" PHYSICS_API void updatePhysics(const Entity* obj, float deltaTime) {
     }
 }
 
-extern "C" PHYSICS_API bool checkCollisionRadius(const Entity* a, const Entity* b, float radiusA, float radiusB) {
-    auto* transformA = &coordinator.getComponent<Transform>(*a);
-    auto* transformB = &coordinator.getComponent<Transform>(*b);
-    glm::vec3 posA = transformA->position;
-    glm::vec3 posB = transformB->position;
+extern "C" PHYSICS_API bool checkCollisionRadius(const Transform* a, const Transform* b, float radiusA, float radiusB) {
+    glm::vec3 posA = a->position;
+    glm::vec3 posB = b->position;
     float distance = glm::distance(posA, posB);
     if (distance < (radiusA + radiusB)) 
     {
@@ -78,11 +65,9 @@ extern "C" PHYSICS_API bool checkCollisionRadius(const Entity* a, const Entity* 
     }
 }
 
-extern "C" PHYSICS_API bool checkCollisionAABB(const Entity* a, const Entity* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
-    auto* transformA = &coordinator.getComponent<Transform>(*a);
-    auto* transformB = &coordinator.getComponent<Transform>(*b);
-    glm::vec3 posA = transformA->position;
-    glm::vec3 posB = transformB->position;
+extern "C" PHYSICS_API bool checkCollisionAABB(const Transform* a, const Transform* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
+    glm::vec3 posA = a->position;
+    glm::vec3 posB = b->position;
     if (abs(posA.x - posB.x) < (halfExtentsA.x + halfExtentsB.x) &&
         abs(posA.y - posB.y) < (halfExtentsA.y + halfExtentsB.y) &&
         abs(posA.z - posB.z) < (halfExtentsA.z + halfExtentsB.z))

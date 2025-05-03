@@ -15,11 +15,11 @@
 struct TransformSystem : public System
 {
 public:
-	inline glm::mat4 update() const
+	inline glm::mat4 update(Entity entity) const
 	{
 		//std::vector<Entity> gameEntities(maxEntities);
 		//std::cout << "Entities: " << entities.size() << std::endl;
-		for (auto const& entity : gameEntities) {
+		//for (auto& entity : gameEntities) {
 			//std::cout << "something" << std::endl;
 			auto& transform = coordinator.getComponent<Transform>(entity);
 			glm::mat4 posMat = glm::translate(transform.position);
@@ -30,9 +30,7 @@ public:
 			glm::mat4 rotMat = rotX * rotY * rotZ;
 
 			return posMat * rotMat * scaleMat;
-
-
-		}
+		//}
 	}
 };
 

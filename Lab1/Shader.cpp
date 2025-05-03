@@ -72,11 +72,12 @@ void Shader::Bind()
 	glUseProgram(shaderID); //installs the program object specified by program as part of rendering state
 }
 
-void Shader::Update(const TransformSystem& transform, const Camera& camera)
-{
-	glm::mat4 mvp = camera.getViewProjection() * transform.update();
-	glUniformMatrix4fv(uniforms[TRANSFORM_U], 1, GLU_FALSE, &mvp[0][0]);
-}
+//void Shader::Update(const TransformSystem& transform, const Camera& camera)
+//{
+//	Entity entity = 0;
+//	glm::mat4 mvp = camera.getViewProjection() * transform.update(entity);
+//	glUniformMatrix4fv(uniforms[TRANSFORM_U], 1, GLU_FALSE, &mvp[0][0]);
+//}
 
 
 GLuint Shader::CreateShader(const std::string& text, unsigned int type)

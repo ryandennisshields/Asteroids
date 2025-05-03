@@ -1,23 +1,19 @@
 #pragma once
 
-#include <glm\glm.hpp>
+#include <GL/glew.h>
+#include <string>
 
-struct Mesh
-{
-public:
-	Mesh(const glm::vec3& pos, const glm::vec2& texCoord)
-	{
-		this->pos = pos;
-		this->texCoord = texCoord;
-		this->normal = normal;
-	}
+struct Mesh {
+    GLuint vao = 0;  // Vertex Array Object
+    GLuint vbo = 0;  // Vertex Buffer Object
+    GLuint ebo = 0;  // Element Buffer Object
+    unsigned int drawCount = 0; // Number of indices
+    std::string modelPath; // Path to the model file
 
-	glm::vec3* GetPos() { return &pos; }
-	glm::vec2* GetTexCoord() { return &texCoord; }
-	glm::vec3* GetNormal() { return &normal; }
+    Mesh() = default;
 
-private:
-	glm::vec3 pos;
-	glm::vec2 texCoord;
-	glm::vec3 normal;
+    Mesh(const std::string& modelPath)
+        : modelPath(modelPath) {
+    }
 };
+

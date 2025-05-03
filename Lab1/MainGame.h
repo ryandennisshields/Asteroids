@@ -40,7 +40,7 @@ private:
 	void drawGame();
 	void clearScreenBuffer();
 	void calculateDeltaTime();
-	void loadMeshes();
+	//void loadMeshes();
 	void loadTextures();
 	void setupUBOs();
 	void loadShaders();
@@ -61,9 +61,9 @@ private:
 	DisplayFacade _gameDisplay;
 	GameState _gameState;
 	Camera myCamera;
-	MeshSystem shipMesh;
-	MeshSystem asteroidMesh;
-	MeshSystem laserMesh;
+	//MeshSystem shipMesh;
+	//MeshSystem asteroidMesh;
+	//MeshSystem laserMesh;
 	Texture shipTexture;
 	Texture asteroidTexture;
 	Texture laserTexture;
@@ -84,11 +84,11 @@ private:
 	std::string activeShaderTag; // Track the active shader
 
 	// Function pointers for physics engine functions
-	void (*setForwardDirection)(const Entity*, glm::vec3) = nullptr;
-	void (*applyThrust)(const Entity*, float) = nullptr;
-	void (*updatePhysics)(const Entity*, float) = nullptr;
+	void (*setForwardDirection)(Transform*, glm::vec3) = nullptr;
+	void (*applyThrust)(Transform*, float) = nullptr;
+	void (*updatePhysics)(Transform*, float) = nullptr;
 
-	bool (*checkCollisionRadius)(const Entity*, const Entity*, float, float) = nullptr;
-	bool (*checkCollisionAABB)(const Entity*, const Entity*, const glm::vec3&, const glm::vec3&) = nullptr;
+	bool (*checkCollisionRadius)(const Transform*, const Transform*, float, float) = nullptr;
+	bool (*checkCollisionAABB)(const Transform*, const Transform*, const glm::vec3&, const glm::vec3&) = nullptr;
 };
 

@@ -1,26 +1,24 @@
 #pragma once
 
 #include "Mesh.h"
-#include <glm\glm.hpp>
-#include <GL\glew.h>
-#include <string>
+#include "Coordinator.h"
 #include "obj_loader.h"
-#include <iostream>
+#include "UBOManager.h"
+#include <glm/glm.hpp>
+#include <GL/glew.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <string>
 #include <vector>
 
-class MeshSystem {
+class MeshSystem : public System {
 public:
-	MeshSystem();
-	~MeshSystem();
+    MeshSystem();
+    ~MeshSystem();
 
-	void draw();
-	void init(Mesh* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices);
-	void loadModel(const std::string& filename);
-	void initModel(const IndexedModel& model);
+    void loadModel(Mesh& mesh); // Load a model and initialize its OpenGL buffers
+    void render(const Mesh& mesh); // Render a single mesh
 
-	GLuint vao = 0;  // Vertex Array Object
 private:
-	GLuint vbo = 0;  // Interleaved Vertex Buffer Object
-	GLuint ebo = 0;  // Index Buffer Object
-	unsigned int drawCount = 0; // Number of indices
+    void initModel(Mesh& mesh, const IndexedModel& model); // Initialize OpenGL buffers for a model
 };
+

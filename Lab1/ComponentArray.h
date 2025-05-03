@@ -17,8 +17,7 @@ class ComponentArray : public IComponentArray
 public:
 	void insertData(Entity entity, T component) {
 		if (entityToIndexMap.find(entity) != entityToIndexMap.end()) {
-			std::cerr << "Error: Entity already has that component" << std::endl;
-			return;
+			throw std::runtime_error("Error: Entity already has that component");
 		}
 
 		size_t newIndex = size; // Get current size as new index entry
@@ -29,9 +28,8 @@ public:
 	}
 
 	void removeData(Entity entity) {
-		if (entityToIndexMap.find(entity) != entityToIndexMap.end()) {
-			std::cerr << "Error: Entity does not have that component" << std::endl;
-			return;
+		if (entityToIndexMap.find(entity) == entityToIndexMap.end()) {
+			throw std::runtime_error("Error: Entity does not have that component");
 		}
 
 		// Copy element at the end of the vector into the deleted entity's place
@@ -53,13 +51,12 @@ public:
 
 	T& getData(Entity entity) {
 		if (entityToIndexMap.find(entity) == entityToIndexMap.end()) {
-			std::cerr << "Error: Entity does not have that component"  << std::endl;
-			return T(); // Return default component if entity not found
+			throw std::runtime_error("Error: Entity does not have that component");
 		}
 		return componentArray[entityToIndexMap[entity]]; // Return the component at the entity's index
 	}
 
-	void entityDestroyed(Entity entity) {
+	void entityDestroyed(Entity entity) override {
 		if (entityToIndexMap.find(entity) != entityToIndexMap.end()) {
 			removeData(entity); // Remove the entity from the component array
 		}
