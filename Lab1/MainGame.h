@@ -14,9 +14,11 @@
 // Components
 #include "Transform.h"
 #include "Mesh.h"
+#include "Texture.h"
 // Systems
 #include "TransformSystem.h"
 #include "MeshSystem.h"
+#include "TextureSystem.h"
 
 enum class GameState{PLAY, EXIT, GAMEOVER};
 
@@ -56,6 +58,7 @@ private:
 
 	TransformSystem transformSystem;
 	MeshSystem meshSystem;
+	TextureSystem textureSystem;
 
 	DisplayFacade _gameDisplay;
 	GameState _gameState;

@@ -48,15 +48,18 @@ void MainGame::initSystems() {
 }
 
 void MainGame::initECS() {
+
 	coordinator.init();
 
 	// Register components
 	coordinator.registerComponent<Transform>();
 	coordinator.registerComponent<Mesh>();
+	coordinator.registerComponent<Texture>(); // Register Texture component
 
 	// Register systems
 	transformSystem = *coordinator.registerSystem<TransformSystem>();
 	meshSystem = *coordinator.registerSystem<MeshSystem>();
+	textureSystem = *coordinator.registerSystem<TextureSystem>(); // Register TextureSystem
 
 	// Set system signatures
 	Signature transformSignature;
@@ -64,9 +67,13 @@ void MainGame::initECS() {
 	coordinator.setSystemSignature<TransformSystem>(transformSignature);
 
 	Signature meshSignature;
-	//meshSignature.set(coordinator.getComponentType<Transform>()); // Meshes need transforms for rendering
 	meshSignature.set(coordinator.getComponentType<Mesh>());
 	coordinator.setSystemSignature<MeshSystem>(meshSignature);
+
+	Signature textureSignature;
+	textureSignature.set(coordinator.getComponentType<Texture>());
+	coordinator.setSystemSignature<TextureSystem>(textureSignature);
+
 
 	//std::vector<Entity> entities(1);
 
@@ -94,10 +101,17 @@ void MainGame::loadMeshes() {
 
 // 🔹 Loads Textures
 void MainGame::loadTextures() {
-	shipTexture.init("..\\res\\metal.jpg");
-	asteroidTexture.init("..\\res\\asteroidRock.jpg");
-	laserTexture.init("..\\res\\laser.jpg");
+	// Initialize and load textures
+	shipTexture = Texture("..\\res\\metal.jpg");
+	textureSystem.loadTexture(shipTexture); // Load the ship texture
+
+	asteroidTexture = Texture("..\\res\\asteroidrock.jpg");
+	textureSystem.loadTexture(asteroidTexture); // Load the asteroid texture
+
+	laserTexture = Texture("..\\res\\laser.jpg");
+	textureSystem.loadTexture(laserTexture); // Load the laser texture
 }
+
 
 // 🔹 Sets up UBOs for matrix data
 void MainGame::setupUBOs() {
@@ -161,6 +175,7 @@ void MainGame::initShip() {
 		glm::vec3(1.0f, 1.0f, 1.0f)  // Scale
 		});
 	coordinator.addComponent(shipEntity, shipMesh); // Add the mesh component to the ship entity
+	coordinator.addComponent(shipEntity, shipTexture); // Add the texture component to the ship entity
 
 	shipTransform = &coordinator.getComponent<Transform>(shipEntity); // Get the transform component for the ship entity
 	ship = &shipEntity; // Store the ship entity in the ship pointer
@@ -177,6 +192,7 @@ void MainGame::initAsteroid() {
 		asteroidManager.randomiseAsteroidScale()
 		});
 	coordinator.addComponent(asteroidEntity, asteroidMesh); // Add the mesh component to the ship entity
+	coordinator.addComponent(asteroidEntity, asteroidTexture); // Add the texture component to the ship entity
 
 	Transform* asteroidTransform = &coordinator.getComponent<Transform>(asteroidEntity); // Get the transform component for the asteroid entity
 	//GameObject* asteroid = new GameObject(&asteroidMesh, asteroidTransform, ShaderManager::getInstance().getShader("ADS").get());
@@ -277,6 +293,7 @@ void MainGame::fireLaser() {
 		glm::vec3(1.0f, 1.0f, 1.0f)  // Scale
 		});
 	coordinator.addComponent(laserEntity, laserMesh); // Add the mesh component to the ship entity
+	coordinator.addComponent(laserEntity, laserTexture); // Add the texture component to the ship entity
 
 	Transform* laserTransform = &coordinator.getComponent<Transform>(laserEntity);
 	//GameObject* laser = new GameObject(&laserMesh, laserTransform , ShaderManager::getInstance().getShader("ADS").get());
@@ -437,73 +454,59 @@ void MainGame::clearScreenBuffer()
 }
 
 void MainGame::renderGameObjects() {
-	//
-	// NOTE
-	// I attempted to make this just a single for loop with gameEntities, but that would've required making both the Shader
-	// and Texture part of the ECS, which was outside my scope for the amount of time I had remaining.
-	//
-	Entity ship = gameEntities[0]; // Get the ship entity
+	for (auto& entity : gameEntities) {
+		auto& transform = coordinator.getComponent<Transform>(entity);
+		auto& mesh = coordinator.getComponent<Mesh>(entity);
+		auto& texture = coordinator.getComponent<Texture>(entity);
 
-	Shader* currentShader = nullptr;
+		Shader* currentShader = nullptr;
+		GLuint currentTexture = 0;
 
-	auto& transform = coordinator.getComponent<Transform>(ship);
-	auto& mesh = coordinator.getComponent<Mesh>(ship);
+		// Use different shaders based on entity type
+		if (std::find(asteroids.begin(), asteroids.end(), entity) != asteroids.end()) {
+			currentShader = ShaderManager::getInstance().getShader("ADS").get();
+			//asteroidTexture.Bind(0);
+		}
+		else if (std::find(lasers.begin(), lasers.end(), entity) != lasers.end()) {
+			currentShader = ShaderManager::getInstance().getShader("ADS").get();
+			//laserTexture.Bind(0);
+		}
+		else if (entity == gameEntities[0]) {
+			currentShader = ShaderManager::getInstance().getShader("ADS").get();
+			//shipTexture.Bind(0);
+		}
 
-	currentShader = ShaderManager::getInstance().getShader("ADS").get();
-	currentShader->Bind();
+		if (currentShader) {
+			currentShader->Bind();
 
-	shipTexture.Bind(0);
+			// Bind the correct texture
+			if (texture.textureHandler != currentTexture) {
+				textureSystem.bind(texture.textureHandler, 0);
+				currentTexture = texture.textureHandler;
+			}
+			//textureSystem.bind(texture.textureHandler, 0);
 
-	glm::mat4 model = transformSystem.update(ship);
-	glm::mat4 view = myCamera.getView();
-	glm::mat4 projection = myCamera.getProjection();
+			// Set the texture sampler uniform
+			//GLint samplerLocation = glGetUniformLocation(currentShader->ID(), "textureSampler");
+			//if (samplerLocation != -1) {
+			//	glUniform1i(samplerLocation, 0); // Set textureSampler to use texture unit 0
+			//}
+			//else {
+			//	std::cerr << "[ERROR] textureSampler uniform not found in shader!" << std::endl;
+			//}
 
-	UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(model), sizeof(glm::mat4));
-	UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4), glm::value_ptr(view), sizeof(glm::mat4));
-	UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
+			glm::mat4 model = transformSystem.update(entity);
+			glm::mat4 view = myCamera.getView();
+			glm::mat4 projection = myCamera.getProjection();
 
-	meshSystem.render(mesh);
+			UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(model), sizeof(glm::mat4));
+			UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4), glm::value_ptr(view), sizeof(glm::mat4));
+			UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
 
-	for (auto& asteroid : asteroids) {
-		auto& transform = coordinator.getComponent<Transform>(asteroid);
-		auto& mesh = coordinator.getComponent<Mesh>(asteroid);
-
-		currentShader = ShaderManager::getInstance().getShader("ADS").get();
-		currentShader->Bind();
-
-		asteroidTexture.Bind(0);
-
-		glm::mat4 model = transformSystem.update(asteroid);
-		glm::mat4 view = myCamera.getView();
-		glm::mat4 projection = myCamera.getProjection();
-
-		UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(model), sizeof(glm::mat4));
-		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4), glm::value_ptr(view), sizeof(glm::mat4));
-		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
-
-		meshSystem.render(mesh);
-	}
-	for (auto& laser : lasers) {
-		auto& transform = coordinator.getComponent<Transform>(laser);
-		auto& mesh = coordinator.getComponent<Mesh>(laser);
-
-		currentShader = ShaderManager::getInstance().getShader("ADS").get();
-		currentShader->Bind();
-
-		laserTexture.Bind(0);
-
-		glm::mat4 model = transformSystem.update(laser);
-		glm::mat4 view = myCamera.getView();
-		glm::mat4 projection = myCamera.getProjection();
-
-		UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(model), sizeof(glm::mat4));
-		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4), glm::value_ptr(view), sizeof(glm::mat4));
-		UBOManager::getInstance().updateUBOData("Matrices", sizeof(glm::mat4) * 2, glm::value_ptr(projection), sizeof(glm::mat4));
-
-		meshSystem.render(mesh);
+			meshSystem.render(mesh);
+		}
 	}
 }
-
 
 void MainGame::drawGame() {
 	TextManager& textManager = TextManager::getInstance();

@@ -114,6 +114,9 @@
     <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp">
       <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
+    <ClCompile Include="TextureSystem.cpp">
+      <Filter>Source Files\Rendering\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -180,6 +183,9 @@
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
     <ClInclude Include="MeshSystem.h">
+      <Filter>Header Files\Rendernig\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureSystem.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
   </ItemGroup>

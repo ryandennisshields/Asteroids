@@ -83,6 +83,7 @@
     <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
+    <ClCompile Include="TextureSystem.cpp" />
     <ClCompile Include="Transform.h" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="EntityManager.h" />
@@ -118,6 +119,7 @@
     <ClInclude Include="SystemManager.h" />
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureSystem.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="UBOManager.h" />

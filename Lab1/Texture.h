@@ -1,20 +1,15 @@
 #pragma once
+
 #include <string>
-#include <GL\glew.h>
+#include <GL/glew.h>
 
-class Texture
-{
-public:
-	Texture();
+struct Texture {
+    std::string texturePath; // Path to the texture file
+    GLuint textureHandler = 0; // OpenGL texture ID
 
-	void Bind(unsigned int unit); // bind upto 32 textures
-	void init(const std::string& fileName);
+    Texture() = default;
 
-	~Texture();
-
-protected:
-private:
-
-	GLuint textureHandler;
+    Texture(const std::string& texturePath)
+        : texturePath(texturePath) {
+    }
 };
-
