@@ -80,6 +80,7 @@
     <ClCompile Include="ComponentManager.cpp" />
     <ClCompile Include="Coordinator.cpp" />
     <ClCompile Include="Coordinator.h" />
+    <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
     <ClCompile Include="Transform.h" />
@@ -95,7 +96,6 @@
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="SystemManager.cpp" />
     <ClCompile Include="TextManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UBOManager.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -119,7 +119,6 @@
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="TransformManager.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="UBOManager.h" />
     <ClInclude Include="Window.h" />

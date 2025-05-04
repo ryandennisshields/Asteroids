@@ -69,9 +69,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files\Rendering\Base</Filter>
-    </ClCompile>
     <ClCompile Include="stb_image.c">
       <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
@@ -114,6 +111,9 @@
     <ClCompile Include="Transform.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp">
+      <Filter>Source Files\Rendering\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayFacade.h">
@@ -150,9 +150,6 @@
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>Header Files\Rendernig\Management</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformManager.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
     <ClInclude Include="UBOManager.h">

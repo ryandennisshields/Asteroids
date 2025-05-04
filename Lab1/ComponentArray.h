@@ -51,7 +51,7 @@ public:
 
 	T& getData(Entity entity) {
 		if (entityToIndexMap.find(entity) == entityToIndexMap.end()) {
-			throw std::runtime_error("Error: Entity does not have that component");
+			throw std::runtime_error("Error: Entity daoes not have that component");
 		}
 		return componentArray[entityToIndexMap[entity]]; // Return the component at the entity's index
 	}

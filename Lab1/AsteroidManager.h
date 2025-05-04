@@ -3,7 +3,6 @@
 #include <SDL\SDL.h>
 #include "MainGame.h"
 #include "GameObject.h"
-#include "TransformManager.h"
 #include "ShaderManager.h"
 #include "UBOManager.h"
 

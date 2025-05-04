@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <windows.h>  // Required for LoadLibrary & GetProcAddress
 #include "ShaderManager.h"
-#include "TransformManager.h"
 #include "TextManager.h"
 #include "UBOManager.h"
 #include "AsteroidManager.h"
@@ -40,13 +39,13 @@ private:
 	void drawGame();
 	void clearScreenBuffer();
 	void calculateDeltaTime();
-	//void loadMeshes();
+	void loadMeshes();
 	void loadTextures();
 	void setupUBOs();
 	void loadShaders();
 	void setupCamera();
 	void renderGameObjects();
-	void renderPlayer();
+	//void renderPlayer();
 	void loadPhysicsEngine();
 	void handleKeyPress(const Uint8* keystate);
 	void initShip();
@@ -61,9 +60,9 @@ private:
 	DisplayFacade _gameDisplay;
 	GameState _gameState;
 	Camera myCamera;
-	//MeshSystem shipMesh;
-	//MeshSystem asteroidMesh;
-	//MeshSystem laserMesh;
+	Mesh shipMesh;
+	Mesh asteroidMesh;
+	Mesh laserMesh;
 	Texture shipTexture;
 	Texture asteroidTexture;
 	Texture laserTexture;

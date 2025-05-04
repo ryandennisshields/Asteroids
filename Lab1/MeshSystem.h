@@ -3,7 +3,6 @@
 #include "Mesh.h"
 #include "Coordinator.h"
 #include "obj_loader.h"
-#include "UBOManager.h"
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
