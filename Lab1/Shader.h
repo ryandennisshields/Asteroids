@@ -12,7 +12,6 @@ public:
 	Shader();
 
 	void Bind(); //Set gpu to use our shaders
-	//void Update(const TransformSystem& transform, const Camera& camera);
 	void init(const std::string& vertFile, const std::string& fragFile);
 	void initGeo();
 

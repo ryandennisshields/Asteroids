@@ -6,5 +6,5 @@
 class System
 {
 public:
-	std::set<Entity> entities; // Vector of entities
+	std::set<Entity> entities; // Vector of entities for Systems
 };

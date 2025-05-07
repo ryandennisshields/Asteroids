@@ -1,3 +1,7 @@
+//
+// This was used as a guide:
+// https://austinmorlan.com/posts/entity_component_system/
+//
 #pragma once
 
 #include "Types.h"
@@ -50,11 +54,14 @@ public:
 	}
 
 	T& getData(Entity entity) {
-		if (entityToIndexMap.find(entity) == entityToIndexMap.end()) {
-			throw std::runtime_error("Error: Entity daoes not have that component");
-		}
+		assert(entityToIndexMap.find(entity) != entityToIndexMap.end() && "Error: component does not exist.");
 		return componentArray[entityToIndexMap[entity]]; // Return the component at the entity's index
 	}
+
+	bool hasComponent(Entity entity) const {
+		return entityToIndexMap.find(entity) != entityToIndexMap.end();
+	}
+
 
 	void entityDestroyed(Entity entity) override {
 		if (entityToIndexMap.find(entity) != entityToIndexMap.end()) {

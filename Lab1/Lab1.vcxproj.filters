@@ -43,6 +43,15 @@
     <Filter Include="Source Files\Rendering\Management">
       <UniqueIdentifier>{a16d3a17-7cf7-4831-9a02-ad4a6c249830}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendernig\Base\Components">
+      <UniqueIdentifier>{c8203d72-155d-4e54-a8e7-44065dd3fa00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Rendernig\Base\Systems">
+      <UniqueIdentifier>{d4ca09c3-4092-4bdc-96d2-f6cf0cc1cd2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Base\Systems">
+      <UniqueIdentifier>{686b48e6-888b-4cb4-86e0-3b2b3a326467}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisplayFacade.cpp">
@@ -59,9 +68,6 @@
     </ClCompile>
     <ClCompile Include="MainGame.cpp">
       <Filter>Source Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshSystem.cpp">
-      <Filter>Source Files\Rendering\Base</Filter>
     </ClCompile>
     <ClCompile Include="obj_loader.cpp">
       <Filter>Source Files\Rendering\Base</Filter>
@@ -109,13 +115,13 @@
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClCompile>
     <ClCompile Include="Transform.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
+      <Filter>Header Files\Rendernig\Base\Components</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp">
-      <Filter>Source Files\Rendering\Base</Filter>
+    <ClCompile Include="MeshSystem.cpp">
+      <Filter>Source Files\Rendering\Base\Systems</Filter>
     </ClCompile>
     <ClCompile Include="TextureSystem.cpp">
-      <Filter>Source Files\Rendering\Base</Filter>
+      <Filter>Source Files\Rendering\Base\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,9 +140,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
-    </ClInclude>
     <ClInclude Include="obj_loader.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
@@ -146,19 +149,10 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files\Rendernig\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformSystem.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
     <ClInclude Include="UBOManager.h">
-      <Filter>Header Files\Rendernig\Management</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
     <ClInclude Include="DLLManager.h">
@@ -182,11 +176,20 @@
     <ClInclude Include="System.h">
       <Filter>Header Files\Rendernig\Management</Filter>
     </ClInclude>
-    <ClInclude Include="MeshSystem.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Rendernig\Base\Components</Filter>
     </ClInclude>
     <ClInclude Include="TextureSystem.h">
-      <Filter>Header Files\Rendernig\Base</Filter>
+      <Filter>Header Files\Rendernig\Base\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>Header Files\Rendernig\Base\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Rendernig\Base\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshSystem.h">
+      <Filter>Header Files\Rendernig\Base\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +225,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\res\asteroidrock.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\res\laser.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

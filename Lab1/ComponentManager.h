@@ -54,7 +54,13 @@ public:
 		return getComponentArray<T>()->getData(entity); // Get the component from the component array
 	}
 
-	void entityDestroyed(Entity entity);
+	template<typename T>
+	bool hasComponent(Entity entity) {
+		return getComponentArray<T>()->hasComponent(entity);
+	}
+
+
+	void entityDestroyed(Entity entity); // Notify component vector that an entity has been destroyed. If it holds a component for an entity, it will remove it
 
 private:
 	std::unordered_map<std::string, ComponentType> componentTypes; // Map of component type to component type ID

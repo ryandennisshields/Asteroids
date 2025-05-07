@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SDL\SDL.h>
 #include <GL/glew.h>
 #include <vector>
@@ -8,7 +9,6 @@
 #include "TextManager.h"
 #include "UBOManager.h"
 #include "AsteroidManager.h"
-#include "Texture.h"
 #include "DisplayFacade.h"
 #include "Coordinator.h"
 // Components
@@ -47,7 +47,6 @@ private:
 	void loadShaders();
 	void setupCamera();
 	void renderGameObjects();
-	//void renderPlayer();
 	void loadPhysicsEngine();
 	void handleKeyPress(const Uint8* keystate);
 	void initShip();
@@ -71,6 +70,9 @@ private:
 	Texture laserTexture;
 	Transform* shipTransform;
 
+	std::vector<Entity> asteroids;
+	std::vector<Entity> lasers;
+
 	int score;
 	float spawnDelay;
 	float fireDelay;
@@ -80,9 +82,6 @@ private:
 	float accumulator = 0.0f;
 	mutable float fixedTimeStep; // 60 physics updates per second
 
-	Entity* ship; // Store a pointer to the ship
-	std::vector<Entity> asteroids; // Store all asteroids
-	std::vector<Entity> lasers;
 	std::string activeShaderTag; // Track the active shader
 
 	// Function pointers for physics engine functions

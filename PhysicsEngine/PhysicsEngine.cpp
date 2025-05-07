@@ -26,14 +26,7 @@ extern "C" PHYSICS_API void applyThrust(Transform* transform, float thrustAmount
 
     thrustDirection = glm::normalize(thrustDirection);
 
-    //if (thrustAmount > 0.3f)
-        //thrustAmount = 0.3f; // cap thrust
-
-    //if (glm::abs(obj->velocity.x) <= 1.0f && glm::abs(obj->velocity.y) <= 1.0f)
-        transform->velocity -= thrustDirection * thrustAmount; // cap velocity
-
-    std::cout << "Velocity: " << transform->velocity.x << ", "
-        << transform->velocity.y << ", " << transform->velocity.z << std::endl;
+    transform->velocity -= thrustDirection * thrustAmount; // Cap velocity
 }
 
 extern "C" PHYSICS_API void updatePhysics(Transform* transform, float deltaTime) {
@@ -51,12 +44,12 @@ extern "C" PHYSICS_API void updatePhysics(Transform* transform, float deltaTime)
 }
 
 extern "C" PHYSICS_API bool checkCollisionRadius(const Transform* a, const Transform* b, float radiusA, float radiusB) {
-    glm::vec3 posA = a->position;
-    glm::vec3 posB = b->position;
+    const glm::vec3& posA = a->position;
+    const glm::vec3& posB = b->position;
+
     float distance = glm::distance(posA, posB);
     if (distance < (radiusA + radiusB)) 
     {
-        std::cout << "Radius Collision between " << a << " and " << b << " detected" << std::endl;
         return true;
     }
     else
@@ -66,13 +59,13 @@ extern "C" PHYSICS_API bool checkCollisionRadius(const Transform* a, const Trans
 }
 
 extern "C" PHYSICS_API bool checkCollisionAABB(const Transform* a, const Transform* b, const glm::vec3& halfExtentsA, const glm::vec3& halfExtentsB) {
-    glm::vec3 posA = a->position;
-    glm::vec3 posB = b->position;
+    const glm::vec3& posA = a->position;
+    const glm::vec3& posB = b->position;
+
     if (abs(posA.x - posB.x) < (halfExtentsA.x + halfExtentsB.x) &&
         abs(posA.y - posB.y) < (halfExtentsA.y + halfExtentsB.y) &&
         abs(posA.z - posB.z) < (halfExtentsA.z + halfExtentsB.z))
     { 
-        std::cout << "AABB Collision between " << a << " and " << b << " detected" << std::endl;
         return true;
     }
     else 

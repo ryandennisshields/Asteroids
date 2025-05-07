@@ -2,9 +2,10 @@
 
 void Coordinator::init()
 {
-   entityManager = std::make_unique<EntityManager>();
-   componentManager = std::make_unique<ComponentManager>();
-   systemManager = std::make_unique<SystemManager>();
+	// Initialize the entity manager, component manager, and system manager
+	componentManager = std::make_unique<ComponentManager>();
+	entityManager = std::make_unique<EntityManager>();
+	systemManager = std::make_unique<SystemManager>();
 }
 
 Entity Coordinator::createEntity()
@@ -19,7 +20,7 @@ void Coordinator::destroyEntity(Entity entity)
 	systemManager->entityDestroyed(entity); // Notify the system manager that the entity has been destroyed
 	auto it = std::find(gameEntities.begin(), gameEntities.end(), entity);
 	if (it != gameEntities.end()) {
-		gameEntities.erase(it);
+		gameEntities.erase(it); // Remove the entity from the game entities vector
 	}
 }
 

@@ -7,12 +7,9 @@
 
 class TextureSystem : public System {
 public:
-    TextureSystem();
-    ~TextureSystem();
+    TextureSystem() = default;
+    ~TextureSystem() = default;
 
-    void loadTexture(Texture& texture);
-    void bind(GLuint& textureHandler, unsigned int unit);
-
-private:
-    //GLuint currentTexture = 0; // Track the currently bound texture
+	void loadTexture(Texture& texture); // Load a texture from file
+	void Bind(GLuint& textureHandler); // Bind a texture to a texture unit
 };

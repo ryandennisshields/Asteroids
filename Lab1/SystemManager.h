@@ -40,7 +40,7 @@ public:
 		signatures.insert({ typeName, signature }); // Insert the signature into the map
 	}
 
-	void entityDestroyed(Entity entity);
+	void entityDestroyed(Entity entity); // Erase a destoyed entity from all system vectors
 
 	void entitySignatureChanged(Entity entity, Signature entitySignature);
 

@@ -13,7 +13,7 @@ EntityManager::EntityManager()
 
 Entity EntityManager::createEntity()
 {
-	if (livingEntityCount >= maxEntities) {
+	if (livingEntityCount > maxEntities) {
 		std::cerr << "Error: Maximum entity limit reached" << std::endl;
 		return Entity(); // Return an empty entity
 	}
@@ -21,8 +21,6 @@ Entity EntityManager::createEntity()
 	Entity id = availableEntities.front(); // Get an entity from the front of the vector
 	availableEntities.pop(); // Remove oldest entity from the vector
 	livingEntityCount++; // Increment the living entity count
-
-	std::cout << "Entity created with ID: " << id << std::endl;
 
 	return id; // Return the frontmost entity id in the vector
 }

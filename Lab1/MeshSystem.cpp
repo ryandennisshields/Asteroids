@@ -1,9 +1,4 @@
 ﻿#include "MeshSystem.h"
-#include <iostream>
-
-MeshSystem::MeshSystem() {}
-
-MeshSystem::~MeshSystem() {}
 
 void MeshSystem::loadModel(Mesh& mesh) {
     IndexedModel model = OBJModel(mesh.modelPath).ToIndexedModel();
@@ -66,8 +61,6 @@ void MeshSystem::initModel(Mesh& mesh, const IndexedModel& model) {
 void MeshSystem::render(const Mesh& mesh) {
     // Bind the VAO and set the model matrix
     glBindVertexArray(mesh.vao);
-    //UBOManager::getInstance().updateUBOData("Matrices", 0, glm::value_ptr(modelMatrix), sizeof(glm::mat4));
-
     // Draw the mesh
     glDrawElements(GL_TRIANGLES, mesh.drawCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

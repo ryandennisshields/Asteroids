@@ -3,10 +3,6 @@
 #include <iostream>
 #include <cassert>
 
-TextureSystem::TextureSystem() {}
-
-TextureSystem::~TextureSystem() {}
-
 void TextureSystem::loadTexture(Texture& texture) {
     int width, height, numComponents;
     unsigned char* imageData = stbi_load(texture.texturePath.c_str(), &width, &height, &numComponents, 4);
@@ -29,12 +25,7 @@ void TextureSystem::loadTexture(Texture& texture) {
     stbi_image_free(imageData);
 }
 
-void TextureSystem::bind(GLuint& textureHandler, unsigned int unit) {
-    //if (currentTexture != textureHandler) {
-    glActiveTexture(GL_TEXTURE0 + unit);
+void TextureSystem::Bind(GLuint& textureHandler) {
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureHandler);
-    //currentTexture = textureHandler;
-    //std::cout << "[DEBUG] Bound texture with ID: " << textureHandler
-    //          << " to texture unit: " << unit << std::endl;
-//}
 }

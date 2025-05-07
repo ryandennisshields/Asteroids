@@ -4,8 +4,8 @@
 #include <GL/glew.h>
 
 struct Texture {
-    std::string texturePath; // Path to the texture file
     GLuint textureHandler = 0; // OpenGL texture ID
+    std::string texturePath; // Path to the texture file
 
     Texture() = default;
 

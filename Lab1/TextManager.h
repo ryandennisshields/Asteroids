@@ -24,7 +24,7 @@ class TextManager
 public:
     static TextManager& getInstance();
 
-	void renderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
+	void renderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color); // Show text on screen
 
 private:
 	TextManager();
@@ -41,5 +41,5 @@ private:
 
 	std::map<GLchar, Character> Characters; // Holds all characters
 
-	unsigned int VAO, VBO;
+	unsigned int VAO, VBO; // Holds VAO and VBO for text
 };

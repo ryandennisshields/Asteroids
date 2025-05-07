@@ -30,7 +30,6 @@ public:
 		componentManager->addComponent<T>(entity, component); // Tell the component manager to add the component to the entity
 
 		auto signature = entityManager->getSignature(entity); // Get the entity's signature
-		// MIGHT CAUSE ISSUES
 		signature.set(componentManager->getComponentType<T>(), true); // Set the component bit in the signature
 		entityManager->setSignature(entity, signature); // Update the entity's signature
 
@@ -53,6 +52,11 @@ public:
 	T& getComponent(Entity entity)
 	{
 		return componentManager->getComponent<T>(entity); // Tell the component manager to get the component from the entity
+	}
+
+	template<typename T>
+	bool hasComponent(Entity entity) {
+		return componentManager->hasComponent<T>(entity);
 	}
 
 	template<typename T>
@@ -79,5 +83,5 @@ public:
 	std::unique_ptr<SystemManager> systemManager; // System manager instance
 };
 
-extern std::vector<Entity> gameEntities;
+extern std::vector<Entity> gameEntities; // Entities for MainGame to use
 extern Coordinator coordinator; // Declare the coordinator instance

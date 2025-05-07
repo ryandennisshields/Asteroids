@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Coordinator.h"
 #include "obj_loader.h"
+#include <iostream>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,13 +12,13 @@
 
 class MeshSystem : public System {
 public:
-    MeshSystem();
-    ~MeshSystem();
+    MeshSystem() = default;
+    ~MeshSystem() = default;
 
-    void loadModel(Mesh& mesh); // Load a model and initialize its OpenGL buffers
-    void render(const Mesh& mesh); // Render a single mesh
+    void loadModel(Mesh& mesh); // Load a model and initialize it
+    void render(const Mesh& mesh); // Render a mesh
 
 private:
-    void initModel(Mesh& mesh, const IndexedModel& model); // Initialize OpenGL buffers for a model
+    void initModel(Mesh& mesh, const IndexedModel& model); // Initialize a model
 };
 

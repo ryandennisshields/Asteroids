@@ -80,7 +80,6 @@
     <ClCompile Include="ComponentManager.cpp" />
     <ClCompile Include="Coordinator.cpp" />
     <ClCompile Include="Coordinator.h" />
-    <ClCompile Include="D:\Uni\Year 4\Games Programming\GPLab9\Lab1\Texture.cpp" />
     <ClCompile Include="DisplayFacade.cpp" />
     <ClCompile Include="DLLManager.cpp" />
     <ClCompile Include="TextureSystem.cpp" />
@@ -106,7 +105,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DisplayFacade.h" />
     <ClInclude Include="DLLManager.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshSystem.h" />
@@ -145,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\asteroidrock.jpg" />
+    <Image Include="..\res\laser.jpg" />
     <Image Include="..\res\metal.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
