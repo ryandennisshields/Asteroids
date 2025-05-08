@@ -177,19 +177,19 @@ void MainGame::initAsteroid() {
 
 	AsteroidManager& asteroidManager = AsteroidManager::getInstance(); // Asteroid manager to randomise elements of spawning
 
+	glm::vec3 randomisedPos = asteroidManager.randomiseAsteroidPos();
+	glm::vec3 randomisedScale = asteroidManager.randomiseAsteroidScale();
+	glm::vec3 randomisedForwardDirection = asteroidManager.randomiseAsteroidForwardDirection(randomisedPos);
 	// Add the transform component to the asteroid entity (partially randomised)
 	coordinator.addComponent(asteroidEntity, Transform{
-		asteroidManager.randomiseAsteroidPos(),
+		randomisedPos,
 		glm::vec3(0.0f, 0.0f, 0.0f),
-		asteroidManager.randomiseAsteroidScale()
+		randomisedScale,
+		randomisedForwardDirection,
 		});
-
 
 	coordinator.addComponent(asteroidEntity, asteroidMesh); // Add the mesh component to the asteroid entity
 	coordinator.addComponent(asteroidEntity, asteroidTexture); // Add the texture component to the asteroid entity
-
-	Transform* asteroidTransform = &coordinator.getComponent<Transform>(asteroidEntity); // Get the transform component for the asteroid entity
-	asteroidTransform->forwardDirection = glm::vec3(asteroidManager.randomiseAsteroidForwardDirection(asteroidTransform->position)); // Randomise the forward direction of the asteroid
 
 	gameEntities.push_back(asteroidEntity); // Add the asteroid entity to the game entities vector
 
@@ -285,13 +285,11 @@ void MainGame::fireLaser() {
 	coordinator.addComponent(laserEntity, Transform{
 		shipTransform->position,
 		shipTransform->rotation,
-		glm::vec3(1.0f, 1.0f, 1.0f)
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		shipTransform->forwardDirection
 		});
 	coordinator.addComponent(laserEntity, laserMesh); // Add the mesh component to the laser entity
 	coordinator.addComponent(laserEntity, laserTexture); // Add the texture component to the laser entity
-
-	Transform* laserTransform = &coordinator.getComponent<Transform>(laserEntity); // Get the transform component for the laser entity
-	laserTransform->forwardDirection = glm::vec3(shipTransform->forwardDirection); // Set the forward direction of the laser to match the ship's forward direction
 	
 	lasers.push_back(laserEntity); // Store the laser entity in the lasers vector (for referencing lasers specifically)
 
@@ -347,60 +345,55 @@ void MainGame::update(float deltaTime) {
 	float deleteBoundsX = 50.0f;
 	float deleteBoundsY = 40.0f;
 
-	float asteroidSpeed = 0.5f;
-	
+	const float laserSpeed = 15.0f;
+
+	for (auto& laser : lasers) {
+
+		if (coordinator.hasComponent<Transform>(laser) == false) continue; // Check if the laser has a transform component
+		auto* laserTransform = &coordinator.getComponent<Transform>(laser);
+
+		laserTransform->position += laserTransform->forwardDirection * laserSpeed * deltaTime; // Move laser forward
+
+		// Code for deleting lasers if they go far off screen
+		if (laserTransform->position.x > deleteBoundsX || laserTransform->position.x < -deleteBoundsX ||
+			laserTransform->position.y > deleteBoundsY || laserTransform->position.y < -deleteBoundsY) {
+			coordinator.destroyEntity(laser);
+			lasers.erase(std::remove(lasers.begin(), lasers.end(), laser), lasers.end());
+		}
+	}
+
+	const float asteroidSpeed = 0.5f;
+
 	for (auto& asteroid : asteroids) {
 
+		if (coordinator.hasComponent<Transform>(asteroid) == false) continue; // Check if the asteroid has a transform component
 		auto* asteroidTransform = &coordinator.getComponent<Transform>(asteroid);
 
 		asteroidTransform->position += asteroidTransform->forwardDirection * asteroidSpeed * deltaTime; // Move asteroid forward
 
+		if (checkCollisionAABB(shipTransform, asteroidTransform, asteroidTransform->scale * 0.75f, glm::vec3(1.0f, 1.0f, 1.0f))) {
+			_gameState = GameState::GAMEOVER; // End game if player collides with an asteroid
+		}
+
+		// Code for deleting asteroids if they go far off screen
 		if (asteroidTransform->position.x > deleteBoundsX || asteroidTransform->position.x < -deleteBoundsX ||
 			asteroidTransform->position.y > deleteBoundsY || asteroidTransform->position.y < -deleteBoundsY) {
 			coordinator.destroyEntity(asteroid);
 			asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), asteroid), asteroids.end());
 		}
 
-//
-// Collision logic is broken
-// After trying to fix it for 10 hours, I have not found a solution to the bug:
-// It seems like asteroidTransform is really inconsistent, creating "ghost" asteroids randomly alongside working asteroids that collide with the laser and player causing unintentional score or game overs
-// I've tried using gameEntities with a tag component, many different checks before setting the asteroidTransform, but sometime it's correct and sometimes it's wrong
-//
+		for (auto& laser : lasers) {
 
-		//for (auto& laser : lasers) {
+			if (coordinator.hasComponent<Transform>(laser) == false) continue; // Check if the laser has a transform component
+			auto* laserTransform = &coordinator.getComponent<Transform>(laser);
 
-		//	auto* laserTransform = &coordinator.getComponent<Transform>(laser);
-
-		//	if (checkCollisionAABB(asteroidTransform, laserTransform, asteroidTransform->scale, glm::vec3(1.0f, 1.0f, 1.0f))) {
-		//		score += 100;
-		//		coordinator.destroyEntity(asteroid); // Destroy the asteroid
-		//		coordinator.destroyEntity(laser); // Destroy the laser
-		//		asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), asteroid), asteroids.end());
-		//		lasers.erase(std::remove(lasers.begin(), lasers.end(), laser), lasers.end());
-		//	}
-		//}
-		//if (checkCollisionAABB(asteroidTransform, shipTransform, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)))
-		//{
-		//	gameEntities.clear();
-		//	lasers.clear();
-		//	asteroids.clear();
-		//	_gameState = GameState::GAMEOVER;
-		//}
-	}
-
-	float laserSpeed = 15.0f;
-
-	for (auto& laser : lasers) {
-
-		auto* laserTransform = &coordinator.getComponent<Transform>(laser);
-
-		laserTransform->position += laserTransform->forwardDirection * laserSpeed * deltaTime; // Move laser forward
-
-		if (laserTransform->position.x > deleteBoundsX || laserTransform->position.x < -deleteBoundsX ||
-			laserTransform->position.y > deleteBoundsY || laserTransform->position.y < -deleteBoundsY) {
-			coordinator.destroyEntity(laser);
-			lasers.erase(std::remove(lasers.begin(), lasers.end(), laser), lasers.end());
+			if (checkCollisionAABB(asteroidTransform, laserTransform, asteroidTransform->scale, glm::vec3(1.0f, 1.0f, 1.0f))) {
+				score += 100;
+				coordinator.destroyEntity(asteroid); // Destroy the asteroid
+				coordinator.destroyEntity(laser); // Destroy the laser
+				asteroids.erase(std::remove(asteroids.begin(), asteroids.end(), asteroid), asteroids.end());
+				lasers.erase(std::remove(lasers.begin(), lasers.end(), laser), lasers.end());
+			}
 		}
 	}
 }
